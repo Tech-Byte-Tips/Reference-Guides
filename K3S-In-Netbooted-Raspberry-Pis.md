@@ -2,6 +2,8 @@
 
 Install K3S (Light Kubernetes) on Network Booting Rasbperry Pis (https://www.youtube.com/watch?v=V-5QLVP6cII)
 
+**Note, I highly recommend that the master node in your Kubernetes cluster be running from an SD Card as running from the network causes slowness and some issues when deploying complex infrastructure.**
+
 -----------------------------------------------------------------------------------------------------------------
 
 # Boot & File System Preparation
