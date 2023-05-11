@@ -143,11 +143,12 @@ It should show as a ClusterIP (which doesn't let us access it outside the cluste
 
 ## 06 - Switch its type from ClusterIP to LoadBalancer:
 
-*To edit, press the 'i', then make the changes.  Once done with the changes, press 'Esc', then press ':' and then type 'wq', then press 'Enter'*
-
 ```
 kubectl -n kubernetes-dashboard edit svc kubernetes-dashboard
 ```
+
+*Press 'i' to start editing with vim, then make start making the changes.*
+*Once done with the changes, press 'Esc', then ':', then type 'wq', then press 'Enter'*
 
 The end should look like this: (We need to specify the IP to listen on our Pi)
 
