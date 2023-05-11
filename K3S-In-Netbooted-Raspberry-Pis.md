@@ -184,6 +184,12 @@ https://10.0.0.80/api/v1/namespaces/kubernetes-dashboard/services/https:kubernet
 /usr/local/bin/k3s-uninstall.sh
 ```
 
+## 03 - Deleting Kubernetes Dashboard (Optional)
+
+```
+sudo k3s kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/${VERSION_KUBE_DASHBOARD}/aio/deploy/recommended.yaml
+```
+
 ---
 
 # References:
