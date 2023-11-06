@@ -1,6 +1,6 @@
 # YouTube Video
 
-How to Fix the Synology NAS VPN issue with /dev/tun (https://www.youtube.com/watch?v=)
+How to Fix the Synology NAS VPN issue with /dev/tun (https://youtu.be/GaKxCAJvWsI)
 
 -----------------------------------------------------------------------------------------------------------------
 
