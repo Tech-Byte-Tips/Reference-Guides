@@ -12,16 +12,16 @@ You can also support me by sending a BitCoin donation to the following address:
 
 In this tutorial we will be installing the Synology Container Storage Interface (CSI) for Kubernetes.  This interface allows us to persist data by using Samba/CIFS or iSCSI LUNs in the Synology NAS.
 
-# Why?
+## Why?
 
 Instead of storing our persisted data inside the iSCSI LUNs for each raspberry pi, we can leverage our NAS to hold that data in separate LUNs or Samba/CIFS locations.  That way, we don't have to worry about our Pis running out of storage space.
 
-# Pre-requisites
+## Pre-requisites
 
   1. Kubernetes cluster 1.19+
   2. Synology NAS with DSM 7.0+
 
-# Steps
+## Steps
 
 First, we need to install the following Custom Resource Definitions from Synology:
 
@@ -75,7 +75,7 @@ First, we need to install the following Custom Resource Definitions from Synolog
   kubectl get pods -n synology-csi
   ```
 
-# Testing
+## Testing
 
 To provision a LUN in the NAS for the volume
 
@@ -95,6 +95,14 @@ spec:
     requests:
       storage: 200Gi
 ```
+
+## Uninstalling the Synology CSI Driver:
+
+  1. Run the following command:
+  
+  ```
+  sudo ./scripts/uninstall.sh
+  ```
 
 # Adding the ability to create volume snapshots on a schedule
 
@@ -152,6 +160,14 @@ spec:
   snapshotLabels:
     firstLabel: mySnapshot
 ```
+
+## Uninstalling the Scheduled Volume Snapshotter:
+
+  1. Run the following command:
+  
+  ```
+  helm uninstall scheduled-volume-snapshotter scheduled-volume-snapshotter/scheduled-volume-snapshotter
+  ```
 
 # Sources
 
