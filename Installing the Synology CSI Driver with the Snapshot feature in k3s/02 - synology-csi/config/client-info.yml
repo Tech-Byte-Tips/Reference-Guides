@@ -1,0 +1,17 @@
+---
+clients:
+  - host: 192.168.1.1
+    port: 5000
+    https: false
+    username: username
+    password: password
+
+# What do the keys mean?
+################################################################################################################
+#host:                      # ipv4 address or domain of the DSM
+#port:                      # port for connecting to the DSM ( 5000 - http | 5001 - https )
+#https:                     # set this true to use https. you need to specify the port to DSM HTTPS port as well
+#username:                  # username
+#password:                  # password
+################################################################################################################
+# If you have more than one NAS, copy the lines 3-7 below line 7 and modify accordingly
