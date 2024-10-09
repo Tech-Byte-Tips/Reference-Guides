@@ -84,6 +84,7 @@ These instructions vary a lot depending on the brand and model of the router tha
      If you are using port 443 for anything else, just pick another port.  Example: 8443
 
   ![Added Port Forward Rule](https://raw.githubusercontent.com/Tech-Byte-Tips/Reference-Guides/main/Exposing%20your%20Synology%20NAS%20hosted%20apps%20to%20the%20public%20internet%20securely/images/008.png)
+  
   7. Add the entry and apply the changes.
 
 Your router should now be forwarding any request that it received on that port to your Synology NAS.
