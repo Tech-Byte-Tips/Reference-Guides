@@ -83,7 +83,7 @@ These instructions vary a lot depending on the brand and model of the router tha
      NOTE: If you are not hosting anything else, it is safe to assume that you are not forwarding port 443 (HTTPS).  Use that.
      If you are using port 443 for anything else, just pick another port.  Example: 8443
 
-     ![Added Port Forward Rule](https://raw.githubusercontent.com/Tech-Byte-Tips/Reference-Guides/main/Exposing%20your%20Synology%20NAS%20hosted%20apps%20to%20the%20public%20internet%20securely/images/008.png)
+  ![Added Port Forward Rule](https://raw.githubusercontent.com/Tech-Byte-Tips/Reference-Guides/main/Exposing%20your%20Synology%20NAS%20hosted%20apps%20to%20the%20public%20internet%20securely/images/008.png)
   7. Add the entry and apply the changes.
 
 Your router should now be forwarding any request that it received on that port to your Synology NAS.
@@ -114,7 +114,7 @@ We need to let the NAS know what to do with that traffic.  That's the purpose of
   c. Port: 8070 (The port where the container is exposed)
 7. Click the Save button.
 
-   ![Reverse Proxy Entry](https://raw.githubusercontent.com/Tech-Byte-Tips/Reference-Guides/main/Exposing%20your%20Synology%20NAS%20hosted%20apps%20to%20the%20public%20internet%20securely/images/010.png)
+![Reverse Proxy Entry](https://raw.githubusercontent.com/Tech-Byte-Tips/Reference-Guides/main/Exposing%20your%20Synology%20NAS%20hosted%20apps%20to%20the%20public%20internet%20securely/images/010.png)
 
 Now, let's quickly review what the did...
 
