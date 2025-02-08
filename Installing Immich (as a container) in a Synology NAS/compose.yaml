@@ -1,0 +1,89 @@
+version: "3"
+services:
+
+  # Container #1 - Application Server
+
+  immich-server:
+    container_name: Immich-Server
+    image: ghcr.io/immich-app/immich-server:release
+    # extends:
+    #   file: hwaccel.transcoding.yml
+    #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
+    volumes:
+      # NAS | CONTAINER
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Containers/Immich/Uploads:/usr/src/app/upload
+      # Uncomment if you prefer to pass your own configuration file. This will mount the config folder to the container.
+      # Replace the left side (Left:Right) with your path to the config folder in the NAS
+      #- /volume1/docker/Containers/Immich/config:/config
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+      # Sample configuration file located at: https://immich.app/docs/install/config-file/
+      # Uncomment if you prefer to configure using a CONFIG file instead of using the Web Interface.
+      # This will tell the container, where in the /config folder is the configuration file.
+      #- IMMICH_CONFIG_FILE=/config/immich.json
+    ports:
+      # NAS | Container
+      - '2283:2283'
+    depends_on:
+      - redis
+      - database
+    restart: unless-stopped
+
+  # Container #2 - ML Server
+
+  immich-machine-learning:
+    container_name: Immich-Machine-Learning
+    # For hardware acceleration, add one of -[armnn, cuda, openvino] to the image tag.
+    # Example tag: ${IMMICH_VERSION:-release}-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    # extends: # uncomment this section for hardware acceleration - see https://immich.app/docs/features/ml-hardware-acceleration
+    #   file: hwaccel.ml.yml
+    #   service: cpu # set to one of [armnn, cuda, openvino, openvino-wsl] for accelerated inference - use the `-wsl` version for WSL2 where applicable
+    volumes:
+      - model-cache:/cache
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+    ports:
+      # NAS | Container
+      - '3003:3003'
+    restart: unless-stopped
+
+  # Container #3 - Cache server
+
+  redis:
+    container_name: Immich-Redis
+    image: docker.io/redis:6.2-alpine@sha256:905c4ee67b8e0aa955331960d2aa745781e6bd89afc44a8584bfd13bc890f0ae
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+    restart: unless-stopped
+
+  # Container #4 - DB Server
+
+  database:
+    container_name: Immich-Postgres
+    image: docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:90724186f0a3517cf6914295b5ab410db9ce23190a2d9d0b9dd6463e3fa298f0
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=immich
+      - POSTGRES_INITDB_ARGS:'--data-checksums'
+    volumes:
+      # NAS | CONTAINER
+      # Replace the left side (Left:Right) with your path to the DB folder in the NAS
+      - /volume1/docker/Containers/Immich/DB:/var/lib/postgresql/data
+    command: ["postgres", "-c" ,"shared_preload_libraries=vectors.so", "-c", 'search_path="$$user", public, vectors', "-c", 
+              "logging_collector=on", "-c", "max_wal_size=2GB", "-c", "shared_buffers=512MB", "-c", "wal_compression=on"]
+    restart: unless-stopped
+
+volumes:
+  model-cache:
