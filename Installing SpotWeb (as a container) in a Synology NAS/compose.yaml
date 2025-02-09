@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+
+  # Container for application
+
+  spotweb:
+    image: erikdevries/spotweb:latest
+    container_name: SpotWeb
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+      - DB_PORT=3306
+      - DB_HOST=spotweb_db
+      - DB_NAME=spotweb
+      - DB_USER=spotweb
+      - DB_PASS=spotweb
+      - CRON_INTERVAL=*/5 * * * *
+    ports:
+      # NAS | Container
+      - 8071:80/tcp
+    depends_on:
+      - spotweb_db
+    restart: unless-stopped
+  
+  # Container for DB
+
+  spotweb_db:
+    image: linuxserver/mariadb:latest
+    container_name: SpotWeb-DB
+    environment:
+      - MYSQL_ROOT_PASSWORD=StRoNgPa55WoRd
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+      - MYSQL_DATABASE=spotweb
+      - MYSQL_USER=spotweb
+      - MYSQL_PASSWORD=spotweb
+    volumes:
+      # NAS | CONTAINER
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Containers/SpotWeb/DB:/config
+    # Commented out because we don't really need to expose it.
+    #ports:
+    #  - 3306:3306/tcp
+    restart: unless-stopped
