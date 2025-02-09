@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+
+  # Container #1 - Watchlistarr
+  watchlistarr:
+    image: nylonee/watchlistarr:latest
+    container_name: Watchlistarr
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+      SONARR_API_KEY: <PUT API KEY HERE>
+      RADARR_API_KEY: <PUT API KEY HERE>
+      PLEX_TOKEN: <PUT PLEX TOKEN HERE>
+    volumes:
+      # NAS | Container
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Configs/Watchlistarr:/app/config
+    restart: unless-stopped

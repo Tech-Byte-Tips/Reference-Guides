@@ -19,11 +19,10 @@ Follow the following folder structure:
 ```
 /docker                   <-- Share created by Container Manager
 --/Containers             <-- Contains all the containers data
-----/SpotWeb              <-- Contains all the data for the SpotWeb application containers
-------/DB                 <-- Contains the MariaDB database files
+----/Watchlistarr         <-- Contains all the data for the Watchlistarr application containers
 --/Projects               <-- Contains the Container Manager projects
-----/SpotWeb              <-- Contains the project for the SpotWeb application
-------/compose.yaml       <-- The SpotWeb docker compose file
+----/Watchlistarr         <-- Contains the project for the Watchlistarr application
+------/compose.yaml       <-- The Watchlistarr docker compose file
 ```
 
 # The Docker Compose file
