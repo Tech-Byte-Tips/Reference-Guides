@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+
+  # Container #1: Komga
+  komga:
+    image: gotson/komga:latest
+    container_name: Komga
+    volumes:
+      # NAS folder | Container folder
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Configs/Komga:/config
+      - /volume1/HTPC:/HTPC
+    ports:
+      - 8072:25600
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+    restart: unless-stopped
