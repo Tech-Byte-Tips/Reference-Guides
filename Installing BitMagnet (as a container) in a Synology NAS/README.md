@@ -39,12 +39,14 @@ Always make sure that your paths in the NAS are correct.  Those are the ones on 
 
 You need to create a custom network for this project so that an IP can be assigned to the database container.
 
+```
 Name: htpc_default
 Subnet: 172.20.0.0/16
 IP Range: 172.20.0.0/16
 Gateway: 172.20.0.1
 IPv6: Disabled
 IP Masquerade: network:enable
+```
 
 # Enjoy!
 
