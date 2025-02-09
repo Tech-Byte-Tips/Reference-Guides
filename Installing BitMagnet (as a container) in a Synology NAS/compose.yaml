@@ -1,0 +1,106 @@
+version: "3"
+# Create a list of all the containers to run
+services:  
+
+  # Container #1: Gluetun - This container runs the VPN connection that we use to route our torrent traffic
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: Gluetun
+    cap_add:
+      - NET_ADMIN # Add Network Administration capabilities to manage the network interfaces
+    devices:
+      - /dev/net/tun:/dev/net/tun # The network device to use for the tunnel
+    extra_hosts:
+      – bitmagnet-postgres: 172.20.0.200
+    ports:
+      # NAS | Container
+      - 8080:8080     # QBitTorrent's User Interface
+      - 8999:8999     # QBitTorrent's TCP Port
+      - 8999:8999/udp # QBitTorrent's UDP Port
+      - 8077:3333     # BitMagnet's User Interface
+      - 3334:3334/tcp # BitMagnet's torrent ports
+      - 3334:3334/udp # BitMagnet's torrent ports
+    volumes:
+      # NAS folder | Container folder
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Configs/BitMagnet/Gluetun:/gluetun
+    environment:
+      ##################### General Settings #####################
+      - TZ=America/New_York # Time Zone
+      - UPDATER_PERIOD=24h  # How often to update list of servers
+      - PUID=1026           # User ID
+      - PGID=100            # Group ID
+
+      #################### PIA Settings #####################
+      - VPN_SERVICE_PROVIDER=private internet access
+      # OpenVPN Configuration
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=<YOUR VPN USERNAME>
+      - OPENVPN_PASSWORD=<YOUR VPN PASSWORD>
+      - SERVER_REGIONS=US Washington DC
+      
+    network_mode: htpc_default
+    restart: unless-stopped
+
+  #Container #2a: BitMagnet - This is the private torrent indexer.
+  bitmagnet:
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    container_name: BitMagnet
+    user: 1026:100
+    #ports:
+      # API and WebUI port:
+      #- "3333:3333"
+      # BitTorrent ports:
+      #- "3334:3334/tcp"
+      #- "3334:3334/udp"
+    environment:
+      - TZ=America/New_York               # Time Zone
+      #- PUID=1026                         # User ID
+      #- PGID=100                          # Group ID
+      - POSTGRES_HOST=bitmagnet-postgres  # The DB container
+      - POSTGRES_PASSWORD=postgres
+      - TMDB_ENABLED=true
+      - TMDB_API_KEY=<YOUR TMDB API KEY>
+    volumes:
+      # NAS folder | Container folder
+      # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
+      - /volume1/docker/Configs/BitMagnet/BitMagnet:/root/.config/bitmagnet
+    command:
+      - worker
+      - run
+      # Run all workers:
+      - --all    
+    network_mode: "service:gluetun" # Use the Gluetun VPN
+    depends_on:
+      bitmagnet-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Container #2b: BitMagnet DB - This is the private torrent indexer's DB.
+  bitmagnet-postgres:
+    image: postgres:16-alpine
+    container_name: BitMagnet-DB
+    volumes:
+      - /volume1/docker/Configs/BitMagnet/Postgres:/var/lib/postgresql/data
+    environment:
+      - TZ=America/New_York               # Time Zone
+      - PUID=1026                         # User ID
+      - PGID=100                          # Group ID
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bitmagnet
+      - PGUSER=postgres
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready
+      start_period: 20s
+      interval: 10s
+    shm_size: 1g
+    networks:
+      htpc_default:
+        ipv4_address: 172.20.0.200 # Assign the desired IP here
+    restart: unless-stopped
+
+networks:
+  htpc_default:
+    external: true
