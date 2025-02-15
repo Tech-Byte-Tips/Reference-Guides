@@ -18,7 +18,7 @@ services:
       - PGID=100            # Group ID
       - ALWAYS_USE_RELAY=N  # Y = Force the connection to go through the Relay Server always
                             # N = Allow direct connections between the two machines if possible
-    command: hbbs           # Change this to your LAN IP (private) or domain (public)
+    command: hbbs
     volumes:
       - /volume1/docker/Containers/RustDesk:/root
     ports:
