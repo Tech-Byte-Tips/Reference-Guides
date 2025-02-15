@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  
+  # Container #1: Rust Desk Initiation Service
+  # Ports Required: 
+  #   21114 TCP - (Optional) Web Console (Only for the Pro version)
+  #   21115 TCP - NAT type test
+  #   21116 TCP - TCP hole punching and connection service
+  #   21116 UDP - ID registration and heartbeat service
+  #   21118 TCP - Support for Web Clients
+  rustdesk-init:
+    container_name: RustDesk-Initiation
+    image: rustdesk/rustdesk-server:latest
+    environment:
+      - TZ=America/New_York # Time Zone
+      - PUID=1026           # User ID
+      - PGID=100            # Group ID
+      - ALWAYS_USE_RELAY=N  # Y = Force the connection to go through the Relay Server always
+                            # N = Allow direct connections between the two machines if possible
+    command: hbbs           # Change this to your LAN IP (private) or domain (public)
+    volumes:
+      - /volume1/docker/Containers/RustDesk:/root
+    ports:
+      # Outside | Container
+      #- 21114:21114/tcp     # Only for Pro version (paid)
+      - 21115:21115/tcp
+      - 21116:21116/tcp
+      - 21116:21116/udp
+      - 21118:21118/tcp
+    depends_on:
+      - rustdesk-relay
+    restart: unless-stopped
+
+  # Container #2: Rust Desk Relay Service
+  # Ports Required: 
+  #   21117 TCP - Relay services
+  #   21119 TCP - Support for Web Clients
+  rustdesk-relay:
+    container_name: RustDesk-Relay
+    image: rustdesk/rustdesk-server:latest
+    environment:
+      - TZ=America/New_York # Time Zone
+      - PUID=1026           # User ID
+      - PGID=100            # Group ID
+    command: hbbr
+    volumes:
+      - /volume1/docker/Containers/RustDesk:/root
+    ports:
+      # Outside | Container
+      - 21117:21117/tcp
+      - 21119:21119/tcp
+    restart: unless-stopped
