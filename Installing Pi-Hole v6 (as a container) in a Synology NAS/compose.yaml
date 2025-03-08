@@ -18,13 +18,15 @@ services:
       - NET_ADMIN
     ports:
       # NAS | Container
-      - 53:53/tcp           # DNS Service
-      - 53:53/udp           # DNS Service
+      - 53:53/tcp           # DNS Service on TCP - Pi-Hole's main function
+      - 53:53/udp           # DNS Service on UDP - Pi-Hole's main function
+      #- 67:67               # DHCP - Only if you plan to use Pi-Hole as a DHCP server in your network
+      - 123:123             # NTP - Network Time Protocol - Making Pi-Hole a time server in your network
+      ############# Here you pick how you want to see the Web Interface #############
       #- 8079:80             # HTTP UI - Check if your container is using 80 or 8080 and uncomment the right one if you are going to use plain HTTP
       #- 8079:8080           # HTTP UI
       - 8079:443            # HTTPS UI - Check if your container is using 443 or 8443 and uncomment the right one if you are going to use HTTPS
       #- 8079:8443           # HTTPS UI
-      #- 67:67               # DHCP - Only if you plan to use Pi-Hole as a DHCP server
     environment:
       - TZ=America/New_York # Time Zone
       - PUID=1026           # User ID
