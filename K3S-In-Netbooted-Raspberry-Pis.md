@@ -15,11 +15,26 @@ cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1
 ```
 
 ## 02 - Make sure to add the pi IPs and hostnames in the **/etc/hosts** file:
+
 ```
 10.0.0.81	k3s1
 10.0.0.82	k3s2
 10.0.0.83	k3s3
 10.0.0.84	k3s4
+```
+
+## 03 - Disable Swap as it is problematic with k3s clusters.
+
+```
+sudo swapoff -a
+```
+
+```
+sudo nano /etc/dphys-swapfile
+```
+
+```
+CONF_SWAPSIZE=0
 ```
 
 -----------------------------------------------------------------------------------------------------------------
