@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+  # Container: Posterizarr
+  posterizarr:
+    container_name: "Posterizarr"
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+      - TERM=xterm
+      - RUN_TIME=10:30,19:30
+    image: ghcr.io/fscorrupt/docker-posterizarr:latest
+    restart: unless-stopped
+    volumes:
+      # NAS Folder | Container Folder
+      - /volume1/docker/Containers/Posterizarr/config:/config
+      - /volume1/docker/Containers/Posterizarr/assets:/assets
