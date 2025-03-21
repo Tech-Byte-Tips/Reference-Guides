@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+
+  # Container - Rom Manager
+  romm:
+    image: rommapp/romm:latest
+    container_name: RomManager
+    restart: unless-stopped
+    # The user with permissions to the folders in the NAS
+    user: '1026:100'
+    # Environment Variables
+    environment:
+      - TZ=America/New_York
+      # The IP of the NAS
+      - DB_HOST=<NAS IP>
+      # The port exposed in the NAS
+      - DB_PORT=3306
+      # MariaDB Database name
+      - DB_NAME=romm
+      # MariaDB User
+      - DB_USER=romm
+      # MariaDB Password
+      - DB_PASSWD=MyRomMPassword11!!
+      # Generate a key with `openssl rand -hex 32`
+      - ROMM_AUTH_SECRET_KEY=f7cc0b84ab78ca44ba498b9a09b9afab0905ee19ceaf8d908283103fe9a9133a
+      # Generate an ID and SECRET for IGDB
+      # https://api-docs.igdb.com/#account-creation
+      - IGDB_CLIENT_ID=<IGDB_CLIENT_ID>
+      - IGDB_CLIENT_SECRET=<IGDB_CLIENT_SECRET>
+      # https://www.mobygames.com/info/api/
+      #- MOBYGAMES_API_KEY= 
+      # https://github.com/rommapp/romm/wiki/Generate-API-Keys#steamgriddb
+      #- STEAMGRIDDB_API_KEY
+    # NAS Storage mount points
+    volumes:
+      # Resources fetched from IGDB (covers, screenshots, etc.)
+      - /volume1/docker/Configs/RomManager/resources:/romm/resources
+      # Cached data for background tasks
+      - /volume1/docker/Configs/RomManager/redis-data:/redis-data
+      # Your game library
+      - /volume1/HTPC/Media/Games/library:/romm/library
+      # Uploaded saves, states, etc.
+      - /volume1/docker/Configs/RomManager/assets:/romm/assets
+      # Path where config.yml is stored
+      - /volume1/docker/Configs/RomManager/config:/romm/config
+    # NAS Connectivity
+    ports:
+      # On NAS | On Container
+      - 8069:8080
