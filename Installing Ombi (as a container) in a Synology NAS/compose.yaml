@@ -1,0 +1,16 @@
+services:
+  # Container: Ombi
+  ombi:
+    image: linuxserver/ombi:latest
+    container_name: Ombi
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Configs/Ombi:/config
+    ports:
+        # Exposed on NAS | Inside Container
+      - 8076:3579
+    restart: unless-stopped
