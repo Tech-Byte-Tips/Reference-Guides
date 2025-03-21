@@ -1,0 +1,44 @@
+# Mode 1: Update Every Running Container
+services:
+  # Watchtower Container
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: Watchtower
+    environment:
+      - TZ=America/New_York
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+      - WATCHTOWER_SCHEDULE=0 0 2 * * *
+    # Pass the Docker Socket to container to manage Docker in the NAS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+# Use this on the project of a container that you don't want to auto-update
+#    labels:
+#      - com.centurylinklabs.watchtower.enable=false
+
+
+#    # Mode 2: Update Named Running Containers
+#    services:
+#  watchtower:
+#    image: containrrr/watchtower:latest
+#    container_name: Watchtower
+#    environment:
+#      - TZ=America/New_York
+#      - WATCHTOWER_CLEANUP=true
+#      - WATCHTOWER_INCLUDE_STOPPED=true
+#      - WATCHTOWER_REVIVE_STOPPED=false
+#      - WATCHTOWER_SCHEDULE=0 0 2 * * *
+#    command: # add or remove the containers below as required
+#      - overseerr
+#      - plex
+#      - prowlarr
+#      - radarr
+#      - sonarr
+#      - tautulli
+#      - watchtower
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    restart: unless-stopped
