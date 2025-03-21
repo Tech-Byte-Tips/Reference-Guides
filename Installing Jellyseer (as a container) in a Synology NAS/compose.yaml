@@ -1,0 +1,15 @@
+services:
+  # Container: Jellyseerr
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: Jellyseerr
+    environment:
+      #- LOG_LEVEL=debug
+      - TZ=America/New_York
+    ports:
+        # Outside / Container
+      - 8072:5055
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Jellyseer:/app/config
+    restart: unless-stopped
