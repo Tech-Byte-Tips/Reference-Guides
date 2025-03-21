@@ -1,0 +1,14 @@
+services:
+  # Container: Unpackerr
+  unpackerr:
+    image: ghcr.io/hotio/unpackerr
+    container_name: Unpackerr
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Unpackerr/config:/config # Unpackerr configuration
+      - /volume1/HTPC:/HTPC                                 # Media path must be the same as arrs!
+    restart: unless-stopped
