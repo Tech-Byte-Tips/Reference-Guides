@@ -1,0 +1,13 @@
+version: "3.3"
+services:
+  # Container: Kapowarr
+  kapowarr:
+    container_name: Kapowarr
+    image: mrcas/kapowarr:latest
+    volumes:
+      # NAS | Container
+      - "/volume1/docker/Configs/Kapowarr:/app/db"
+      - "/volume1/HTPC:/HTPC"
+    ports:
+        # Outside / Container
+      - 8071:5656
