@@ -47,7 +47,7 @@ services:
       PHOTOPRISM_ADMIN_USER: "admin"                 # admin login username
       PHOTOPRISM_ADMIN_PASSWORD: "password"          # initial admin password (8-72 characters)
       PHOTOPRISM_AUTH_MODE: "password"               # authentication mode (public, password)
-      PHOTOPRISM_SITE_URL: "http://10.0.0.73:8074/"  # server URL in the format "http(s)://domain.name(:port)/(path)"
+      PHOTOPRISM_SITE_URL: "http://<NAS IP>:8074/"  # server URL in the format "http(s)://domain.name(:port)/(path)"
       PHOTOPRISM_DISABLE_TLS: "true"                 # disables HTTPS/TLS even if the site URL starts with https:// and a certificate is available
       PHOTOPRISM_DEFAULT_TLS: "true"                 # defaults to a self-signed HTTPS/TLS certificate if no other certificate is available
       PHOTOPRISM_ORIGINALS_LIMIT: 5000               # file size limit for originals in MB (increase for high-res video)
@@ -75,7 +75,7 @@ services:
       PHOTOPRISM_UPLOAD_NSFW: "true"                 # allows uploads that MAY be offensive (no effect without TensorFlow)
       # PHOTOPRISM_DATABASE_DRIVER: "sqlite"         # SQLite is an embedded database that does not require a separate database server
       PHOTOPRISM_DATABASE_DRIVER: "mysql"            # MariaDB 10.5.12+ (MySQL successor) offers significantly better performance compared to SQLite
-      PHOTOPRISM_DATABASE_SERVER: "10.0.0.73:3306"     # MariaDB database server (hostname:port)
+      PHOTOPRISM_DATABASE_SERVER: "<NAS IP>:3306"     # MariaDB database server (hostname:port)
       PHOTOPRISM_DATABASE_NAME: "photoprism"         # MariaDB database schema name
       PHOTOPRISM_DATABASE_USER: "photoprism"         # MariaDB database user name
       PHOTOPRISM_DATABASE_PASSWORD: "PasswordForPhotoPrism12!@"       # MariaDB database user password
@@ -108,7 +108,7 @@ services:
     ## Storage Folders: "~" is a shortcut for your home directory, "." for the current directory
     volumes:
       # "/host/folder:/photoprism/folder"                # Example
-      - "/volume1/docker/Configs/Photoprism/originals:/photoprism/originals"               # Original media files (DO NOT REMOVE)
-      - "/volume1/docker/Configs/Photoprism/storage:/photoprism/storage"                  # *Writable* storage folder for cache, database, and sidecar files (DO NOT REMOVE)
+      - "/volume1/docker/Containers/Photoprism/originals:/photoprism/originals"               # Original media files (DO NOT REMOVE)
+      - "/volume1/docker/Containers/Photoprism/storage:/photoprism/storage"                  # *Writable* storage folder for cache, database, and sidecar files (DO NOT REMOVE)
       # - "/example/family:/photoprism/originals/family" # *Additional* media folders can be mounted like this
       # - "~/Import:/photoprism/import"                  # *Optional* base folder from which files can be imported to originals

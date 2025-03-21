@@ -16,5 +16,5 @@ services:
     volumes:
       # NAS | Container
       # Replace the left side (Left:Right) with your path to the Uploads folder in the NAS
-      - /volume1/docker/Configs/Watchlistarr:/app/config
+      - /volume1/docker/Containers/Watchlistarr:/app/config
     restart: unless-stopped
