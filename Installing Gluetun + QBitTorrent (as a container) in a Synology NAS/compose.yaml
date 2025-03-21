@@ -1,0 +1,52 @@
+version: "3"
+services:
+  
+  # Container #1 - Gluetun
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: Gluetun
+    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      # Outside / Container
+      - 8080:8080 # QBitTorrent's User Interface
+      - 6880:6880 # QBitTorrent's TCP Port
+      - 6880:6880/udp # QBitTorrent's UDP Port
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Configs/Gluetun:/gluetun
+    environment:
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      - VPN_SERVICE_PROVIDER=private internet access
+      - VPN_TYPE=openvpn
+      # OpenVPN:
+      - OPENVPN_USER=<username>
+      - OPENVPN_PASSWORD=<password>
+      - SERVER_REGIONS=US Baltimore
+      - TZ=America/New_York
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=24h
+    restart: always
+
+  # Container #2 - QBitTorrent
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: QBitTorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+      - WEBUI_PORT=8080
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/QBitTorrent:/config
+      - /volume1/HTPC:/HTPC
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    restart: always
