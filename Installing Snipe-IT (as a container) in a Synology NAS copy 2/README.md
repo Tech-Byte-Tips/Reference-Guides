@@ -19,11 +19,11 @@ Follow the following folder structure:
 ```
 /docker                   <-- Share created by Container Manager
 --/Containers             <-- Contains all the containers data
-----/Declutarr            <-- Contains all the data for the Declutarr application containers
+----/Snap-IT              <-- Contains all the data for the Snap-IT application containers
 ------/config             <-- Contains the configuration files
 --/Projects               <-- Contains the Container Manager projects
-----/Declutarr            <-- Contains the project for the Declutarr application
-------/compose.yaml       <-- The Declutarr docker compose file
+----/Snap-IT              <-- Contains the project for the Snap-IT application
+------/compose.yaml       <-- The Snap-IT docker compose file
 ```
 
 # The Docker Compose file

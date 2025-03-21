@@ -1,0 +1,10 @@
+services:
+  app:
+    image: snipe/snipe-it:${APP_VERSION:-v7.0.11}
+    restart: unless-stopped
+    volumes:
+      - /volume1/docker/Configs/SnipeIT:/var/lib/snipeit
+    ports:
+      - "${APP_PORT:-8068}:80"
+    env_file:
+      - .env
