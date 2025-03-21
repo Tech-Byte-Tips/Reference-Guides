@@ -1,0 +1,18 @@
+services:
+  # Container: AudioBookShelf
+  audiobookshelf:
+    container_name: AudioBookShelf
+    image: advplyr/audiobookshelf:latest
+    ports:
+      # Exposed / Internal
+      - 8077:80
+    volumes:
+      # NAS | Container
+      - /volume1/HTPC/Media/Audiobooks:/audiobooks
+      - /volume1/HTPC/Media/Podcasts:/podcasts
+      - /volume1/docker/Configs/AudioBookShelf/config:/config
+      - /volume1/docker/Configs/AudioBookShelf/metadata:/metadata
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
