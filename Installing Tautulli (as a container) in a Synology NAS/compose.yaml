@@ -1,0 +1,17 @@
+version: '3'
+services:
+  # Container: Tautulli
+  tautulli:
+    image: tautulli/tautulli
+    container_name: Tautulli
+    restart: unless-stopped
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Configs/Tautulli:/config
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+    ports:
+    # External / Container
+      - 8075:8181
