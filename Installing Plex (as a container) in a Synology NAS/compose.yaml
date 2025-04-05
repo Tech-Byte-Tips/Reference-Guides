@@ -1,0 +1,47 @@
+# If you don't have a graphics card in your NAS that you can use for transcoding
+
+services:
+  plex:
+    image: linuxserver/plex
+    container_name: Plex
+    network_mode: host                       # For DLNA
+    environment:
+      - PUID=1026                            # User ID
+      - PGID=100                             # Group ID
+      - TZ=America/New_York                  # Time Zone
+      - VERSION=docker                       # Docker version
+#      - PLEX_CLAIM=                         # Optional
+    volumes:
+      - /volume1/docker/Containers/Plex:/config
+      - /volume1/HTPC/Media:/Media
+    restart: unless-stopped
+
+# If you DO have a graphics card in your NAS that you can used for transcoding
+
+#services:
+#  plex:
+#    image: linuxserver/plex
+#    container_name: Plex
+#    network_mode: host                       # For DLNA
+#    environment:
+#      - PUID=1026                            # User ID
+#      - PGID=100                             # Group ID
+#      - TZ=America/New_York                  # Time Zone
+#      - VERSION=docker                       # Docker version
+#      - PLEX_CLAIM=                          # Optional
+#      - NVIDIA_VISIBLE_DEVICES=all                       # To use nVidia graphics transcoding
+#      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility # To use nVidia graphics transcoding
+#    deploy:                                              # To use nVidia graphics transcoding
+#      resources:                                         # To use nVidia graphics transcoding
+#        reservations:                                    # To use nVidia graphics transcoding
+#          devices:                                       # To use nVidia graphics transcoding
+#            - driver: nvidia                             # To use nVidia graphics transcoding
+#              count: 1                                   # To use nVidia graphics transcoding
+#              capabilities: [gpu]                        # To use nVidia graphics transcoding
+#    runtime: nvidia                                      # To use nVidia graphics transcoding
+#    volumes:
+#      - /volume1/docker/Containers/Plex:/config
+#      - /volume1/HTPC/Media:/Media
+#    devices:                                             # To use Intel QuickSync or AMD graphics transcoding
+#      - dev/dri:/dev/dri                                 # To use Intel QuickSync or AMD graphics transcoding
+#    restart: unless-stopped
