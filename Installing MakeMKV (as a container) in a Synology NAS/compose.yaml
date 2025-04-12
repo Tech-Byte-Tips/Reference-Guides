@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+
+  # Container: MakeMKV
+  makemkv:
+    image: jlesage/makemkv:latest
+    container_name: MakeMKV
+    environment:
+      - TZ=America/New_York # Time Zone
+      - USER_ID=1026        # The Container creator is looking for these ENV variables instead
+      - GROUP_ID=100
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/MakeMKV:/config
+      - /volume1/HTPC/Media/Retail/ISOs:/storage
+      - /volume1/HTPC/Media/Retail/Videos:/output
+    ports:
+      # NAS | Container
+      - 5800:5800/tcp
