@@ -19,13 +19,14 @@ Follow the following folder structure:
 ```
 /docker                   <-- Share created by Container Manager
 --/Containers             <-- Contains all the containers data
-----/MakeMKV              <-- Contains all the data for the MakeMKV application containers
+----/HandBrake            <-- Contains all the data for the HandBrake application containers
 ------/config             <-- Contains the configuration files
-------/storage            <-- Contains the files that you want to convert
+------/storage            <-- Contains the files that you want to manually convert
 ------/output             <-- Contains the resulting files from your conversion
+------/watch              <-- Contains the files that you want it to automatically convert
 --/Projects               <-- Contains the Container Manager projects
-----/MakeMKV              <-- Contains the project for the MakeMKV application
-------/compose.yaml       <-- The MakeMKV docker compose file
+----/HandBrake            <-- Contains the project for the HandBrake application
+------/compose.yaml       <-- The HandBrake docker compose file
 ```
 
 # The Docker Compose file

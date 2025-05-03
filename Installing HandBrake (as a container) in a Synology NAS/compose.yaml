@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+
+  # Container: HandBrake
+  handbrake:
+    image: jlesage/handbrake:latest
+    container_name: HandBrake
+    environment:
+      - TZ=America/New_York # Time Zone
+      - USER_ID=1026        # The Container creator is looking for these ENV variables instead
+      - GROUP_ID=100
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/HandBrake/config:/config
+      - /volume1/docker/Containers/HandBrake/storage:/storage
+      - /volume1/docker/Containers/HandBrake/watch:/watch
+      - /volume1/docker/Containers/HandBrake/output:/output
+    ports:
+      # NAS | Container
+      - 5800:5800/tcp
