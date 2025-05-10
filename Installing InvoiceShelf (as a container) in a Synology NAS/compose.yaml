@@ -1,0 +1,45 @@
+#-------------------------------------------
+# InvoiceShelf SQLite docker-compose variant
+# Repo : https://github.com/InvoiceShelf/docker
+#-------------------------------------------
+
+services:
+
+  invoiceshelf:
+
+    image: invoiceshelf/invoiceshelf:latest
+    container_name: Invoice-Shelf
+    ports:
+      # NAS | Container
+      - 9000:80
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/InvoiceShelf/data:/data
+      - /volume1/docker/Containers/InvoiceShelf/config:/conf
+    environment:
+      - PUID=1026
+      - PGID=100
+      - PHP_TZ=America/New_York
+      - TIMEZONE=America/New_York
+      - APP_NAME=Laravel
+      - APP_ENV=local
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:9000
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/InvoiceShelf/database/database.sqlite # please don't touch this!
+      - CACHE_STORE=file
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+      - SESSION_ENCRYPT=false
+      - SESSION_PATH=/
+      - SESSION_DOMAIN=localhost
+      - SANCTUM_STATEFUL_DOMAINS=localhost:9000
+      - STARTUP_DELAY=
+      #- MAIL_DRIVER=smtp
+      #- MAIL_HOST=smtp.mailtrap.io
+      #- MAIL_PORT=2525
+      #- MAIL_USERNAME=null
+      #- MAIL_PASSWORD=null
+      #- MAIL_PASSWORD_FILE=<filename>
+      #- MAIL_ENCRYPTION=null
+    restart: unless-stopped
