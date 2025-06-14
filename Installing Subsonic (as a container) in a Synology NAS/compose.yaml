@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  # Container: Subsonic
+  subsonic:
+    image: danisla/subsonic:latest
+    container_name: Subsonic
+    environment:
+      - TZ=America/New_York	    # Time Zone
+      - SUBSONIC_UID=1026       # User ID
+      - SUBSONIC_GID=100        # Group ID
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/Subsonic/config:/opt/app/state
+      - /volume1/HTPC/Media/Music:/music
+      - /volume1/HTPC/Media/Podcasts:/podcasts
+    ports:
+      # NAS | Container
+      - 8000:4040/tcp
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: unless-stopped
