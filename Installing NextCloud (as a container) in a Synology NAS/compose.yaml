@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  # Container Nextcloud
+  nextcloud:
+    image: linuxserver/nextcloud:latest
+    container_name: Nextcloud
+    environment:
+      - PUID=1026             # User ID
+      - PGID=100              # User Group
+      - TZ=America/New_York
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/NextCloud/config:/config
+      - /volume1/docker/Containers/NextCloud/data:/data
+    ports:
+      # NAS | Container
+      - 8000:443
+    restart: unless-stopped
