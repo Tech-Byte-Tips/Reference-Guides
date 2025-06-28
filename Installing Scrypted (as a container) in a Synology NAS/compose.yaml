@@ -1,0 +1,59 @@
+version: "3"
+
+services:
+
+  # Scrypted service
+  scrypted:
+
+    image: koush/scrypted:latest
+    container_name: Scrypted
+    environment:
+      # User ID
+      - PUID=1026
+      # User Group ID
+      - PGID=100
+      - TZ=America/New_York
+      # Use the /nvr path for Scrypted NVR storage.
+      - SCRYPTED_NVR_VOLUME=/nvr
+
+      # Avahi can be used for network discovery by passing in the host daemon
+      # or running the daemon inside the container. Choose one or the other.
+      # Uncomment next line to run avahi-daemon inside the container.
+      # See volumes and security_opt section below to use the host daemon.
+      # - SCRYPTED_DOCKER_AVAHI=true
+
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Scrypted/config:/server/volume
+      - /volume1/docker/Containers/Scrypted/recordings:/nvr
+      # Uncomment the following lines to use Avahi daemon from the host.
+      # Ensure Avahi is running on the host machine:
+      # It can be installed with: sudo apt-get install avahi-daemon
+      # This is not compatible with running avahi inside the container (see above).
+      # Also, uncomment the lines under security_opt
+      # - /var/run/dbus:/var/run/dbus
+      # - /var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket
+
+    # Uncomment the following lines to use Avahi daemon from the host
+    # Without this, AppArmor will block the container's attempt to talk to Avahi via dbus
+    # security_opt:
+    #   - apparmor:unconfined
+
+    # Uncomment the following line to use host networking mode
+    #network_mode: host
+    # Otherwise, use bridge mode with port mappings below.
+    ports:
+      # NAS | Container
+      - 10443:10443 # HTTPS Web UI
+      - 11080:11080 # HTTP Web UI
+      - 10444:10444 # RTSP
+      - 5353:5353   # mDNS (Avahi)
+      # For Plugins that require additional ports, uncomment the following lines:
+      - 554:554     # RTSP (legacy)
+      #- 1883:1883   # MQTT (non-secure)
+      #- 8883:8883   # MQTT (secure)
+      #- 5000:5000   # WebRTC (ONVIF)
+      #- 8000:8000   # WebRTC (legacy ONVIF)
+      #- 8080:8080   # WebRTC (legacy ONVIF)
+      
+    restart: unless-stopped
