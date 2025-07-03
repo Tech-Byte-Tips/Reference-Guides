@@ -1,0 +1,2 @@
+#!ipxe
+chain http://boot.netboot.xyz

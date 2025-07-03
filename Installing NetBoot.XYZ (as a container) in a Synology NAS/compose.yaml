@@ -1,0 +1,49 @@
+version: "3"
+services:
+  # Service 1: NetBoot.XYZ service
+  # This container holds the OS versions that devices will
+  # use to boot.
+  netbootxyz:
+    image: linuxserver/netbootxyz:0.7.5-ls215
+    container_name: NetBoot.XYZ
+    environment:
+      # User ID
+      PUID: 1026
+      # User Group ID
+      PGID: 100
+      # Time Zone
+      TZ: America/New_York
+      # Optional
+      # MENU_VERSION: 2.0.76
+      # Optional
+      NGINX_PORT: 8080
+      # Optional
+      WEB_APP_PORT: 3000
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/NetBoot.XYZ/config:/config
+      - /volume1/docker/Containers/NetBoot.XYZ/assets:/assets
+    #ports:
+    #  # NAS | Container
+    #  - 69:69/udp # TFTP
+    #  - 3000:3000 # Web Config interface
+    #  - 8080:8080 # Web Application
+    network_mode: host
+    restart: unless-stopped
+
+  # Service 2: Proxy DHCP container
+  # This container listens for DHCP requests in your network, 
+  # lets your router assign the IP, and then redirects the 
+  # devices to the NetBoox.XYZ container in the NAS.
+  proxydhcp:
+    image: ghcr.io/ferrarimarco/pxe
+    container_name: ProxyDHCP
+    volumes:
+      - /volume1/docker/Containers/NetBoot.XYZ/dnsmasq.conf:/etc/dnsmasq.conf:ro
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+# Check the TFTP Server is running:
+# netstat -anu | grep :69
