@@ -1,0 +1,62 @@
+version: "3"
+services:
+
+  # Service #1 - Application
+  teamspeak:
+    image: teamspeak:latest
+    container_name: TeamSpeak
+    restart: unless-stopped
+    ports:
+      # NAS | Container
+      - 9987:9987/udp
+      - 10011:10011
+      - 30033:30033
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+      # The location of the license file
+      # TS3SERVER_LICENSEPATH: /var/ts3server/
+      # The kind of database to use
+      TS3SERVER_DB_PLUGIN: ts3db_mariadb
+      # Path to the sql scripts used to initialize the database
+      TS3SERVER_DB_SQLCREATEPATH: create_mariadb
+      # Name of the DB service
+      TS3SERVER_DB_HOST: db
+      # Database user
+      TS3SERVER_DB_USER: root
+      # Database password
+      TS3SERVER_DB_PASSWORD: example
+      # Database name
+      TS3SERVER_DB_NAME: teamspeak
+      # Time to wait for the DB to be ready
+      TS3SERVER_DB_WAITUNTILREADY: 30
+      # Automatically accept the license agreement
+      TS3SERVER_LICENSE: accept
+    #volumes:
+      # NAS | Container
+      #- /volume1/docker/Containers/TeamSpeak/licensekey.dat:/var/ts3server/licensekey.dat
+
+  # Service #2 - Database
+  db:
+    image: mariadb
+    container_name: TeamSpeak-DB
+    restart: unless-stopped
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+      # Database root user
+      MYSQL_ROOT_PASSWORD: example
+      # Database name
+      MYSQL_DATABASE: teamspeak
+    volumes:
+      # NAS | Container
+      # To do it this way, you must allow the 'mysql' user to have access to the folder in the NAS
+      # - /volume1/docker/Containers/TeamSpeak/db:/var/lib/mysql
+      # Let Docker manage the folder automatically in the NAS
+      - mariadb_data:/var/lib/mysql
+
+# If using automatic management of the folder
+volumes:
+  mariadb_data:
