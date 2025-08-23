@@ -1,0 +1,57 @@
+version: "3"
+
+services:
+
+  # Container 1 - Database
+  mattermost-db:
+    image: postgres:17
+    container_name: Mattermost-DB
+    hostname: mattermost-db
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "mattermost", "-U", "mattermostuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Mattermost/db:/var/lib/postgresql/data
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+      POSTGRES_DB: mattermost
+      POSTGRES_USER: <username>
+      POSTGRES_PASSWORD: <password>
+    restart: unless-stopped
+
+  # Container 2 - Application Server
+  mattermost:
+    image: mattermost/mattermost-team-edition:latest
+    container_name: Mattermost
+    hostname: mattermost
+    user: 1026:100
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Mattermost/config:/mattermost/config
+      - /volume1/docker/Containers/Mattermost/data:/mattermost/data
+      - /volume1/docker/Containers/Mattermost/logs:/mattermost/logs
+      - /volume1/docker/Containers/Mattermost/plugins:/mattermost/plugins
+      - /volume1/docker/Containers/Mattermost/client:/mattermost/client/plugins
+      - /volume1/docker/Containers/Mattermost/indexes:/mattermost/bleve-indexes
+    environment:
+      TZ: America/New_York
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: postgres://<username>:<password>@mattermost-db:5432/mattermost?sslmode=disable&connect_timeout=10
+      MM_BLEVESETTINGS_INDEXDIR: /mattermost/bleve-indexes
+      MM_SERVICESETTINGS_SITEURL: https://<my_domain.tld>
+      # If you use a port other than 443 use this instead
+      #MM_SERVICESETTINGS_SITEURL: https://<my_domain.tld>:<port>
+    ports:
+      # NAS | Container
+      - "8401:8065"       # Web UI
+      - "8443:8443/udp"   # Calls (WebRTC)
+      - "8443:8443/tcp"   # Fallback for Calls
+    restart: unless-stopped
+    depends_on:
+      mattermost-db:
+        condition: service_started
