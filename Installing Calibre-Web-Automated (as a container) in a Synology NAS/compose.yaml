@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  # Container - Calibre Web Automated Application
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: Calibre-Web-Automated
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+      # Sets the listening port for the application. Defaults to 8083 if commented.
+      - CWA_PORT_OVERRIDE=8083
+      # Hardcover API Key required for Hardcover as a Metadata Provider
+      # Get one here: https://docs.hardcover.app/api/getting-started/
+      - HARDCOVER_TOKEN=<your_hardcover_api_key_here>
+      # If your library is on a network share (e.g., NFS/SMB), disables WAL and chown to reduce locking/permission issues,
+      # and switches file watching to polling (more reliable on network mounts) instead of inotify.
+      # Accepts: true/false (default: false)
+      - NETWORK_SHARE_MODE=false
+      # If you want to force polling mode regardless of share type, set CWA_WATCH_MODE=poll
+      # - CWA_WATCH_MODE=poll
+      # Skip the automatic library detection/mount at startup. When enabled, the auto-library service will not run.
+      # Accepts: true/yes/1 to disable auto-mount (default: false)
+      - DISABLE_LIBRARY_AUTOMOUNT=false
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Calibre-Web-Automated/config:/config 
+      # Ingest dir. Anything added here will be automatically added to your library. All files placed here are REMOVED AFTER PROCESSING
+      - /volume1/docker/Containers/Calibre-Web-Automated/ingest:/cwa-book-ingest
+      # If you don't have an existing library, CWA will automatically create one at the bind provided here
+      - /volume1/docker/Containers/Calibre-Web-Automated/library:/calibre-library
+      # If you use calibre plugins, you can bind your plugins folder here to have CWA attempt to add them to it's workflow (WIP)
+      # If you are starting with a fresh install, you also need to copy plugins\..\customize.py.json to the corresponding docker location 
+      # (the config path above + .config/calibre/customize.py.json)
+      - /volume1/docker/Containers/Calibre-Web-Automated/plugins:/config/.config/calibre/plugins
+    ports:
+      # NAS | Container
+      - 8083:8083
+    restart: unless-stopped
