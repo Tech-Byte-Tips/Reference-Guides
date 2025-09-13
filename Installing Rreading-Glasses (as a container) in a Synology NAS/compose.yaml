@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+
+  # Container 1 - Rreading-Glasses - Metadata Fetcher
+  rreading-glasses:
+    image: blampe/rreading-glasses:latest
+    container_name: Rreading-Glasses
+    hostname: rreading-glasses
+    entrypoint: ["/main", "serve"]
+    command:
+      - --upstream=www.goodreads.com
+      # Possible values: verbose, debug, info, warn, error, quiet (try them out to see what works best for you, not in the docs) | Or entirely remove it
+      - --verbose
+    environment:
+      POSTGRES_HOST: rreading-glasses-db
+      POSTGRES_DATABASE: rreading-glasses
+      POSTGRES_USER: rreading-glasses
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      # NAS | Container
+      - "8788:8788"
+    mem_limit: 512m
+    depends_on:
+      rreading-glasses-db:
+        condition: service_started
+    restart: unless-stopped
+
+  # Container 2 - Database
+  rreading-glasses-db:
+    image: postgres:17
+    container_name: Rreading-Glasses-DB
+    environment:
+      PUID: 1026
+      PGID: 100
+      POSTGRES_USER: rreading-glasses
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: rreading-glasses
+    #ports:
+    # NAS | Container
+    #  - "5432:5432"
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Rreading-Glasses/db:/var/lib/postgresql/data
+    restart: unless-stopped
