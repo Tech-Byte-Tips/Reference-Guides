@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+
+  # Container #1 - Database
+  db:
+    image: postgres:17
+    container_name: Joplin-DB
+    user: "1026:100"
+    environment:
+      - APP_PORT=22300            # Application Port
+      - POSTGRES_PASSWORD=joplin  # DB Password
+      - POSTGRES_USER=joplin      # DB User
+      - POSTGRES_DB=joplin        # DB Name
+    volumes:
+      # NAS | Container
+    - /volume1/docker/Containers/Joplin/db:/var/lib/postgresql/data
+    restart: unless-stopped
+    
+  # Container #2 - Joplin
+  app:
+    image: joplin/server:latest
+    container_name: Joplin
+    depends_on:
+    - db
+    ports:
+      # NAS | Container
+    - "22300:22300"
+    environment:
+      - APP_BASE_URL=http://10.0.0.73:22300 # Local IP or Public Domain
+      - DB_CLIENT=pg                        # Use Postgres client
+      - POSTGRES_PASSWORD=joplin            # DB Password from above
+      - POSTGRES_DATABASE=joplin            # DB Name from above
+      - POSTGRES_USER=joplin                # DB User from above
+      - POSTGRES_PORT=5432                  # Postgres port
+      - POSTGRES_HOST=db                    # Name of DB service
+    restart: unless-stopped
