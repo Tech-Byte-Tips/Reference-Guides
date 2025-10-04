@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  # Container #1: The Beeper application
+  beeper:
+    image: ghcr.io/zachatrocity/docker-beeper:latest
+    container_name: Beeper
+    environment:
+      - PUID=1026           # User with permission to read/write to volumes in NAS
+      - PGID=100            # User's group
+      - TZ=America/New_York # Timezone
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Beeper/config:/config
+    ports:
+      # NAS | Container
+      - 3000:3000
+      - 3001:3001
+    restart: unless-stopped
