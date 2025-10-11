@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+
+  # Container #1 - Homarr
+  homarr:
+    container_name: Homarr
+    image: ghcr.io/homarr-labs/homarr:latest
+    volumes:
+      # NAS | Container
+      # Optional, only if you want docker integration
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - /volume1/docker/Containers/homarr:/appdata
+    environment:
+      # You can generate your own key here: https://homarr.dev/docs/getting-started/installation/docker/
+      - SECRET_ENCRYPTION_KEY=5508b8288482e240e877c8e9ae4ab8bd68bc9aa15f6357f50953bc952a4e822f
+    ports:
+      # NAS | Container
+      - '7575:7575'
+    restart: unless-stopped
