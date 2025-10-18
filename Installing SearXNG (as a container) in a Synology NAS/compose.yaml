@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  # Container #1: The SearXNG application
+  searxng:
+    image: searxng/searxng:latest
+    container_name: SearXNG
+    # A user that can write and read to the mounted volumes
+    user: "1026:100"
+    environment:
+      - TZ=America/New_York
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/SearXNG/config:/etc/searxng/
+      - /volume1/docker/Containers/SearXNG/data:/var/cache/searxng/
+      # Used to replace the logo with an image of your choice
+      - /volume1/docker/Containers/SearXNG/Logo.png:/usr/local/searxng/searx/static/themes/simple/img/searxng.png
+    ports:
+      # NAS | Container
+      - 8081:8080
+    restart: unless-stopped
