@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  # Container #1 - Profilarr
+  profilarr:
+    image: santiagosayshey/profilarr:latest
+    container_name: Profilarr
+    ports:
+      # NAS | Container
+      - "6868:6868"
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Profilarr:/config
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+    restart: unless-stopped
