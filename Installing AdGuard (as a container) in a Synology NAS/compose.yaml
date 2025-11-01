@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  # Container #1 - Profilarr
+  profilarr:
+    image: adguard/adguardhome:latest
+    container_name: AdGuard
+    ports:
+      # NAS | Container
+      - 53:53       # DNS Queries
+      - 67:67       # DHCP Server
+      - 8070:80       # Web UI
+      #- 8071:443     # Web UI Secure
+      - 853:853     # DNS over HTTPS
+      - 3000:3000   # Initial Setup Interface
+      #- 5443:5443   # DNS Crypt
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/AdGuard/config:/opt/adguardhome/conf
+      - /volume1/docker/Containers/AdGuard:/opt/adguardhome/work
+    environment:
+      - TZ=America/New_York
+    restart: unless-stopped
