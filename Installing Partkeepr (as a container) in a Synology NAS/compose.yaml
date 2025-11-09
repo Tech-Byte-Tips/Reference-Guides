@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  
+  # App Container
+  partkeepr:
+    image: mhubig/partkeepr:latest
+    container_name: Partkeepr
+    environment:
+      TZ: America/New_York
+    ports:
+      # NAS | Container
+      - "8000:80"
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Partkeepr/config:/var/www/html/partkeepr/app/config
+      - /volume1/docker/Containers/Partkeepr/data:/var/www/html/partkeepr/app/data
+    depends_on:
+      - partkeepr-database
+    restart: unless-stopped
+  
+  # DB Container
+  partkeepr-database:
+    image: mariadb:10.0
+    container_name: Partkeepr-DB
+    user: "1026:100"
+    environment:
+      TZ: America/New_York
+      MYSQL_ROOT_PASSWORD: partkeepr
+      MYSQL_DATABASE: partkeepr
+      MYSQL_USER: partkeepr
+      MYSQL_PASSWORD: partkeepr
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Partkeepr/db:/var/lib/mysql
+    restart: unless-stopped
