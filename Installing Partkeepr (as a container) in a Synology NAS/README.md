@@ -22,6 +22,7 @@ Follow the following folder structure:
 ----/Partkeepr              <-- Contains all the data for the Partkeepr application container
 ------/config               <-- Contains the configuration files
 ------/data                 <-- Contains the data files
+------/db                   <-- Contains the database files
 --/Projects                 <-- Contains the Container Manager projects
 ----/Partkeepr              <-- Contains the project for the Partkeepr application
 ------/compose.yaml         <-- The Partkeepr docker compose file
