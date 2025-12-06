@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+  # Container #1 - OpenLDAP
+  openldap:
+    image: osixia/openldap:latest
+    container_name: OpenLDAP
+    ports:
+      # NAS | Container
+      - "389:389" # LDAP (unencrypted)
+      # - "636:636" # LDAPS (TLS)
+    environment:
+      # Minimal required settings
+      - LDAP_ORGANISATION=Example Inc           # Organization name
+      - LDAP_DOMAIN=example.local               # Domain name for LDAP
+      - LDAP_ADMIN_PASSWORD=adminpassword       # Admin password for ldapadmin user
+      - LDAP_BASE_DN=dc=example,dc=local        # Base DN for LDAP entries
+
+      # Optional / advanced (uncomment to use):
+      # - LDAP_CONFIG_PASSWORD=configpassword   # Password for config admin user used to manage config DB
+      # - LDAP_READONLY_USER=true               # Create a read-only bind user (useful for monitoring)
+      # - LDAP_RFC2307BIS_SCHEMA=true           # Load RFC2307bis schema for POSIX attributes (uidNumber/gidNumber)
+      # - LDAP_TLS=true                         # Enable TLS/LDAPS inside the container (requires certs mounted)
+      # - LDAP_TLS_CRT_FILENAME=openldap.crt    # TLS certificate filename (placed in container certs dir)
+      # - LDAP_TLS_KEY_FILENAME=openldap.key    # TLS private key filename matching the cert
+      # - LDAP_TLS_CA_CRT_FILENAME=ca.crt       # CA certificate filename (chain or CA)
+      # - LDAP_REMOVE_CONFIG_AFTER_SETUP=false  # Remove bootstrap files after provisioning
+      # - LDAP_REPLICATION=false                # Enable replication (requires additional config)
+      # - LDAP_REPLICATION_SYNCPROV=true        # Use syncrepl provider for replication
+      # - LDAP_DOMAIN_COMPONENTS=example,local  # Comma-separated domain components for base DN
+    volumes:
+      # Use Docker-managed named volumes (recommended on Synology).
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+      # If you provide TLS files, mount them from a folder or secret, e.g.:
+      # - ./certs/openldap.crt:/container/service/slapd/assets/certs/openldap.crt:ro
+      # - ./certs/openldap.key:/container/service/slapd/assets/certs/openldap.key:ro
+      # - ./certs/ca.crt:/container/service/slapd/assets/certs/ca.crt:ro
+    restart: unless-stopped
+
+  # Container #2 - PHP LDAP Admin
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: PHP-LDAP-Admin
+    depends_on:
+      - openldap
+    ports:
+      # NAS | Container
+      - "8888:80"  # HTTP (change host port if 80 is used on Synology)
+      # - "8883:443" # HTTPS (optional)
+    environment:
+      # Minimal recommended settings
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap  # LDAP server hostname (Docker service name)
+      - PHPLDAPADMIN_HTTPS=false          # Enable HTTPS access to phpLDAPadmin
+
+      # Optional / advanced (uncomment to use):
+      # - PHPLDAPADMIN_HTTPS_CRT_FILENAME=phpldapadmin.crt  # TLS certificate filename (placed in container certs dir)
+      # - PHPLDAPADMIN_HTTPS_KEY_FILENAME=phpldapadmin.key  # TLS key filename (placed in container certs dir)
+      # - PHPLDAPADMIN_TRUST_PROXY_HEADERS=true             # Trust X-Forwarded-* headers (if behind a reverse proxy)
+      # - PHPLDAPADMIN_MODE=servers_only                    # Limit to server management only (no tree view)
+      # - PHPLDAPADMIN_LDAP_PORT=389                        # LDAP port (default 389)
+      # - PHPLDAPADMIN_LDAP_BASE_DN=dc=example,dc=local     # Base DN to use by default
+      # - PHPLDAPADMIN_LDAP_LOGIN_ATTRIBUTE=uid             # Login attribute (default uid)
+    # volumes:
+      # NAS | Container
+      # If you want to provide custom Apache config or TLS certs, mount here
+      # - /volume1/docker/Containers/PHPLDAPAdmin/apache:/etc/apache2/sites-enabled:ro
+      # - /volume1/docker/Containers/PHPLDAPAdmin/certs/phpldapadmin.crt:/etc/apache2/ssl/phpldapadmin.crt:ro
+      # - /volume1/docker/Containers/PHPLDAPAdmin/certs/phpldapadmin.key:/etc/apache2/ssl/phpldapadmin.key:ro
+    restart: unless-stopped
+
+volumes:
+  openldap_data:
+    name: openldap_data
+  openldap_config:
+    name: openldap_config
+
+# Log into phpLDAPadmin at: http://<Synology-NAS-IP>:8888
+# Default login DN: cn=admin,dc=example,dc=local
+# Admin password: adminpassword
