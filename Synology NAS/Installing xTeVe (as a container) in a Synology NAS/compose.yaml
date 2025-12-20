@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  # Container #1 - XTeVe
+  xteve: 
+    image: dnsforge/xteve:latest
+    container_name: XTeVe
+    ports:
+      # NAS | Container
+      - "34400:34400"   # Web UI
+      #- "1900:1900/udp" # SSDP (optional, for discovery)
+    volumes:
+      # NAS | Container
+      - xteve_config:/home/xteve/conf
+    environment:
+      - TZ=America/New_York
+    restart: unless-stopped
+
+volumes:
+  xteve_config:
+    name: xteve_config
