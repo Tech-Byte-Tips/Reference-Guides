@@ -22,6 +22,8 @@ Follow the following folder structure:
 ----/Posterizarr          <-- Contains all the data for the Posterizarr application containers
 ------/config             <-- Contains the configuration files
 ------/assets             <-- Contains the asset files
+------/assetsbackup       <-- Contains the asset backup files
+------/manualassets       <-- Contains the manual asset files
 --/Projects               <-- Contains the Container Manager projects
 ----/Posterizarr          <-- Contains the project for the Posterizarr application
 ------/compose.yaml       <-- The Posterizarr docker compose file
