@@ -1,0 +1,33 @@
+version: '3'
+# This Docker Compose file is to setup the recommended xTeVe container image
+services:
+  # Container #1 - XTeVe
+  xteve: 
+    image: alturismo/xteve_g2g_owi:latest
+    container_name: XTeVe
+    ports:
+      # NAS | Container
+      - "34400:34400" # Web UI
+    volumes:
+      # NAS | Container
+      - "/volume1/docker/Containers/xTeVe:/root/.xteve"
+      - "/volume1/docker/Containers/xTeVe/config:/config"
+      - "/volume1/docker/Containers/xTeVe/guide2go:/guide2go"
+      - "/volume1/docker/Containers/xTeVe/owi2plex:/owi2plex"
+      - "/volume1/docker/Containers/xTeVe/tmp:/tmp/xteve"
+      - "/volume1/docker/Containers/xTeVe/tvheadend:/TVH"
+      # If using the docker managed volume, uncomment the following lines and the volumes section at the bottom
+      #- xteve_config:/root/.xteve
+      #- xteve_config/config:/config
+      #- xteve_config/guide2go:/guide2go
+      #- xteve_config/owi2plex:/owi2plex
+      #- xteve_config/tmp:/tmp/xteve
+      #- xteve_config/tvheadend:/TVH
+    environment:
+      - TZ=America/New_York
+    restart: unless-stopped
+
+# If using the docker managed volume, uncomment the following lines
+# volumes:
+#   xteve_config:
+#     name: xteve_config

@@ -1,5 +1,5 @@
 version: '3'
-
+# This Docker Compose uses the older version of xTeve
 services:
   # Container #1 - XTeVe
   xteve: 

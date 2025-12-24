@@ -21,6 +21,11 @@ Follow the following folder structure:
 --/Containers             <-- Contains all the containers data
 --/Projects               <-- Contains the Container Manager projects
 ----/xTeVe                <-- Contains the project for the xTeVe application
+------/config             <-- Contains the xTeVe configuration
+------/guide2go           <-- Contains the guide2go data
+------/owi2plex           <-- Contains the owi2plex data
+------/tmp                <-- Contains temporary files
+------/tvheadend          <-- Contains the TVHeadEnd data
 ------/compose.yaml       <-- The xTeVe docker compose file
 ```
 
