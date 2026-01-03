@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  decluttarr:
+    image: ghcr.io/manimatter/decluttarr:latest
+    # Container: Decluttarr
+    container_name: Decluttarr
+    restart: always
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+    volumes:
+      - /volume1/docker/decluttarr/config.yaml:/app/config/config.yaml
+      # If you want to keep logs in a file, uncomment the line below
+      #- /volume1/docker/decluttarr/logs:/app/logs
+      # If you plan to monitor the deleted media files, uncomment the line below and map your media folder
+      #- /volume1/HTPC/Media:/Media

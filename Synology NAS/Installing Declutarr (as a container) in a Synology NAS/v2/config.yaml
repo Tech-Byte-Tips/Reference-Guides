@@ -1,0 +1,315 @@
+# These settings configure the general behavior of Decluttarr across all features.
+general:
+  # REQUIRED - Defaults to INFO
+  # Options:
+  # DEBUG - Shows very granular information, only required for debugging
+  # VERBOSE - Will show each check being performed even if no change is applied
+  # INFO - Will only show changes applied to radarr/sonarr/lidarr/readarr/whisparr
+  # WARNING - Only show warnings and errors
+  # ERROR - Only show errors
+  # CRITICAL - Only show critical errors
+  log_level: INFO
+  
+  # OPTIONAL - Defaults to False
+  # Options:
+  # True - Allows you to run Decluttarr in test mode. No changes will be applied to your *arr instances.
+  # False - Normal operation mode
+  test_run: false
+  
+  # OPTIONAL - Defaults to 10
+  # Options:
+  # Number (minutes) - How often Decluttarr will run through its removal and search routines.
+  timer: 10
+  
+  # OPTIONAL - Defaults to True
+  # Options:
+  # True - Enables SSL verification when connecting to *arr instances and download clients.
+  # False - Disables SSL verification when connecting to *arr instances and download clients.
+  ssl_verification: false
+  
+  # OPTIONAL - Defaults to [] (nothing ignored)
+  # Options:
+  # ["emulerrr", "myotherclient"] - List of download clients to ignore when performing removal operations.
+  # The names must match those configured in your *arr instances.
+  ignored_download_clients: []
+  
+  # OPTIONAL - Defaults to remove
+  # Defines what happens with private tracker torrents if they are flagged by a removal job.
+  # ** Note: This setting only applies to QBitTorrent currently. **
+  # Options:
+  # remove - The torrents are removed (default behavior)
+  # skip - The torrents are skipped (no action taken).  This might be handy to protect their private tracker ratios.
+  # obsolete_tag - The torrents are tagged with the obsolete tag.  This allows other applications like qbit_manage 
+  #                to monitor them and remove them once seed targets are fulfilled.
+  private_tracker_handling: "remove"
+  
+  # OPTIONAL - Defaults to remove
+  # Defines what happens with public tracker torrents if they are flagged by a removal job.
+  # ** Note: This setting only applies to QBitTorrent currently. **
+  # Options:
+  # remove - The torrents are removed (default behavior)
+  # skip - The torrents are skipped (no action taken).  This might be handy to protect their private tracker ratios.
+  # obsolete_tag - The torrents are tagged with the obsolete tag.  This allows other applications like qbit_manage 
+  #                to monitor them and remove them once seed targets are fulfilled.
+  public_tracker_handling: "remove"
+  
+  # OPTIONAL - Defaults to "Obsolete"
+  # Only relevant in conjunction with private_tracker_handling or public_tracker_handling set to "obsolete_tag".
+  # Defines the tag to apply to torrents flagged for removal.
+  # Options:
+  # Obsolete - The torrents are tagged with "Obsolete".
+  obsolete_tag: "Obsolete"
+  
+  # OPTIONAL - Defaults to "Keep"
+  # If you do not want certain torrents to be removed by Decluttarr, you can set a protected tag here.
+  # Any torrent with this tag will be ignored by all removal jobs.
+  # Go to QBitTorrent and add this tag to any torrents you want to protect from removal.
+  # ** Note: This setting only applies to QBitTorrent currently. **
+  # Options:
+  # Keep - Any torrent with the "Keep" tag will be protected from removal.
+  protected_tag: "Keep"
+
+# Certain jobs have additional settings that can be configured globally here.
+# If a job has specific settings defined under 'jobs', those will override these defaults.
+job_defaults:
+  # OPTIONAL - Defaults to 3
+  # Defines the maximum number of strikes (failures) a download can have before being removed.
+  # If a download temporarily recovers, its strike count will be reset.
+  # Options:
+  # Number - Maximum number of strikes (failures) a download can have before being removed
+  max_strikes: 3
+
+  # OPTIONAL - Defaults to 7
+  # Defines how many days must pass before decluttarr tries to search for an item again.
+  # Options:
+  # Number - Minimum number of days between searches for the same item
+  # ** Note: This setting only applies together with search_unmet_cutoff and search_missing **
+  min_days_between_searches: 7
+
+  # OPTIONAL - Defaults to 3
+  # Defines the maximum number of searches that can be running at the same time.
+  # Each *arr instance counts separately.
+  # Options:
+  # Number - Maximum number of concurrent searches
+  # ** Note: This setting only applies together with search_unmet_cutoff and search_missing **
+  max_concurrent_searches: 3
+
+# Here you can enable/disable specific jobs and override their default settings.
+jobs:
+  # OPTIONAL - Defaults to false (disabled)
+  # Decides whether files within torrents are marked as "not to download" if they match one of these conditions
+  # i. They are less than 100% available
+  # ii. They are not one of the desired file types supported by the arr apps
+  # iii. They contain one of these words (case-insensitive) and are smaller than 500MB:
+  #   * Trailer
+  #   * Sample
+  # If all files within a torrent are marked as "not to download", the torrent will be removed and blacklisted.
+  # This features is only supported when QBitTorrent is configured in Decluttarr, and it will turn on the setting
+  # 'Keep unselected files in ".unwanted" folder' in QBitTorrent.'
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # or
+  # keep_archives: true - Compressed archives (rar, zip, 7zip, etc.) are kept.  Useful if you use another tool like Unpackerr.
+  # keep_archives: false - Compressed archives (rar, zip, 7zip, etc.) are also marked as "not to download".
+  remove_bad_files: false
+    # keep_archives: true
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that are completed and are done with seeding from the download client's queue when they meet
+  # your selection criteria (tags and/or categories).
+  # "Done Seeding" means that the download has reached its seeding goals (ratio/time).
+  # The limits are taken from your global settings in your download client, or the download-specific overrides.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # taraget_tags: List of tag names to match
+  # target_categories: List of category names to match
+  # ** Matching Logic: **
+  #      1. This requires at least one of target_tags or target_categories.  If neither is provided, the configured
+  #         obsolete tag will be used as target_tag. 
+  #      2. A torrent must be completed AND match a category in target_categories OR have any tag in target_tags.
+  #      3. If both tags and categories are provided, the condition is an OR between them.
+  # ** Notes: **
+  #     - This job currently only supports QBitTorrent.
+  #     - Works great together with obsolete_tag: have other jobs tag torrents as obsolete, and this job will clean them up once done seeding.
+  #     - Why you should not set "Remove torrent and its files" upon reaching seeding goals in QBitTorrent?
+  #       * This setting is discouraged by arrs and you will get warnings about it.
+  #       * You get more granular control.
+  #       * You can use this job to clean up after other apps like autobrr that do not have any torrent management features.
+  remove_done_seeding: false
+    # target_tags:
+    #   - "Obsolete"
+    # target_categories:
+    #  - "autobrr"
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that are marked as "failed" from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: Blocklisted: Yes (same download won't be loaded again) **
+  remove_failed_downloads: false
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that failed to import from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # message_patterns: List of message patterns to match (wildcards * supported)
+  # ** Notes: **
+  #    - Blocklisted: No (same download can be loaded again)
+  #    - You can use the message_pattern to limit which type of failed imports are removed.
+  #    - If you specify message_patterns instead of a bool, this will automatically be turned on.
+  #    - Message patterns are exact matches, unless you use wildcards (*).
+  #      "Failed" will not match "Failed Import", but "Failed*" will.
+  remove_failed_imports: false
+    # message_patterns:
+    #   - "Not a Custom Format upgrade for existing*"
+    #   - "Not an upgrade for existing*"
+    #   - "*Found potentially dangerous file with extension*"
+    #   - "Invalid video file*"
+    #   - "No files found are eligible for import*"
+    #   - "One or more episodes expected in this release were not imported or missing from the release"
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads stuck obtaining metadata from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: **
+  #   - Blocklisted: Yes (same download won't be loaded again)
+  #   - With max_strikes you can define how many times a torrent can be caught before being removed.
+  #   - Instead of configuring it here, you can also set it globally under job_defaults.
+  remove_metadata_missing:
+    max_strikes: 3
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that have the warning "Files Missing" from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: **
+  #   - Blocklisted: No (same download can be loaded again)
+  remove_missing_files: false
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that are no longer monitored in their respective *arr instance from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: **
+  #   - Blocklisted: Yes (same download won't be loaded again)
+  remove_orphans: true
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that are downloading or seeding below a certain speed from the queue.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # min_speed: Minimum download speed (in KB/s) below which a download is considered "slow".  If not provided,
+  #            defaults to 100 KB/s.
+  # max_strikes: Number of times a download can be caught below min_speed before being removed
+  # About Configurations:
+  #  - Measuring Speed
+  #    The arrs (Radarr, Sonarr, etc.) do not provide information about download speeds.
+  #    Therefore, this job relies entirely on the download client to determine speeds.
+  #    Configure QBitTorrent and/or SABnzbD so that Declutarr can get accurate speed information from them.
+  #  - Auto-disabling when bandwith maxed out (QBitTorrent only)
+  #    The remove_slow check is automatically temporarily disabled if QBitTorrent is alreday using more than
+  #    80% of your available download bandwidth.
+  #    For this to work, you must set a Global Download Rate Limit in QBitTorrent.  Otherwise, unlimited capacity
+  #    is assumed and the check is never disabled.
+  #  - Make sure to configure the limit in the correct place (either the standard or the alternative limits,
+  #    depending on which one is active in your setup).
+  # ** Notes: **
+  #   - Blocklisted: Yes (same download won't be loaded again)
+  remove_slow: false
+    # min_speed: 100
+    # max_strikes: 3
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that have been stalled (no upload or download activity).
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # max_strikes: Number of times a download can be caught stalled before being removed
+  # ** Notes: **
+  #   - Blocklisted: Yes (same download won't be loaded again)
+  remove_stalled: true
+    # max_strikes: 3
+  # OPTIONAL - Defaults to false (disabled)
+  # Removes downloads that are unmonitored in their respective *arr instance.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: **
+  #  - Will only remove from the queue if all TV Shows depending on the same download are unmonitored (Sonarr).
+  #  - Blocklisted: No (same download can be loaded again)
+  remove_unmonitored: true
+  # OPTIONAL - Defaults to false (disabled)
+  # Searches for items that are missing episodes/volumes/books/music in their respective *arr and have not met cutoff.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # min_days_between_searches: Number - Minimum number of days between searches for the same item
+  # max_concurrent_searches: Number - Maximum number of concurrent searches
+  # ** Notes: **
+  #  - You can also specify min_days_between_searches and max_concurrent_searches globally under job_defaults or rely on 
+  #    the system defaults.
+  search_unmet_cutoff: true
+    # min_days_between_searches: 7
+    # max_concurrent_searches: 3
+  # OPTIONAL - Defaults to false (disabled)
+  # Searches for items that are completely missing from their respective *arr.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # min_days_between_searches: Number - Minimum number of days between searches for the same item
+  # max_concurrent_searches: Number - Maximum number of concurrent searches
+  # ** Notes: **
+  #  - You can also specify min_days_between_searches and max_concurrent_searches globally under job_defaults or rely on 
+  #    the system defaults.
+  search_missing: true
+    # min_days_between_searches: 7
+    # max_concurrent_searches: 3
+  # OPTIONAL - Defaults to false (disabled)
+  # When your media files (movies/TV shows) get deleted on the file system, radarr/sonarr won't notice that immediately.
+  # Radarr/Sonarr will only detect that the files are gone when it does a library scan.
+  # This job monitors the media folders you have set up in radarr/sonarr and notifies radarr/sonarr to do a library scan
+  # if it detects that files have been deleted.
+  # This way, radarr/sonarr can react faster to deleted files.
+  # Options:
+  # True - Enables the job
+  # False - Disables the job
+  # ** Notes: **
+  #  - This job only works with radarr/sonarr for now, not lidarr/readarr/whisparr.
+  #  - Declutarr must have access to the paths that you have set up in your radarr/sonarr instances.
+  #  - The paths must be identical to what is set up in radarr/sonarr (including case sensitivity).
+  #  - If you use Declutarr in a container, you must mount the media folders into the container as well.
+  detect_deletions: false
+
+# Here you define your *arr instances. You can add multiple instances of each *arr.
+instances:
+  sonarr:
+    - base_url: "http://sonarr:8082"
+      api_key: "xxxx"
+  radarr:
+    - base_url: "http://radarr:8083"
+      api_key: "xxxx"
+  lidarr:
+    - base_url: "http://lidarr:8084"
+      api_key: "xxxx"
+  readarr:
+    - base_url: "http://readarr:8086"
+      api_key: "xxxx"
+  whisparr:
+    - base_url: "http://whisparr:8092"
+      api_key: "xxxx"
+
+# Here you define your download clients. You can add multiple download clients of each type.
+download_clients:
+  qbittorrent:
+    - base_url: "http://qbittorrent:8080"
+      # Optional if no authentication is needed
+      username: xxxx
+      password: xxxx
+      # Optional - Must correspond with what is specified in your *arr as download client name
+      name: "QBitTorrent"
+  sabnzbd:
+    - base_url: "http://sabnzbd:8081"
+      api_key: "xxxx"
+      # Optional - Must correspond with what is specified in your *arr as download client name
+      name: "SABnzbD"

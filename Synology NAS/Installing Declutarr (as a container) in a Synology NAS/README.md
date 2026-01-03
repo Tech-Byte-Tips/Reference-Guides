@@ -8,32 +8,6 @@ You can also support me by sending a BitCoin donation to the following address:
 
 19JXFGfRUV4NedS5tBGfJhkfRrN2EQtxVo
 
-# Building the folder structure
+# About
 
-This folder structure will reside in the 'docker' folder created by the NAS when you install Container Manager.
-
-Inside it, have a folder for the container's data ("Containers") and another for the project docker compose files ("Projects").
-
-Follow the following folder structure:
-
-```
-/docker                   <-- Share created by Container Manager
---/Containers             <-- Contains all the containers data
-----/Declutarr            <-- Contains all the data for the Declutarr application containers
-------/config             <-- Contains the configuration files
---/Projects               <-- Contains the Container Manager projects
-----/Declutarr            <-- Contains the project for the Declutarr application
-------/compose.yaml       <-- The Declutarr docker compose file
-```
-
-# The Docker Compose file
-
-I have put comments in the docker compose file to make it easy to change.
-
-## Other options
-
-Always make sure that your paths in the NAS are correct.  Those are the ones on the left side of the colon (:) in the volumes section.  Your volume name might be different, so, always copy the values from the Synology Files interface.
-
-# Enjoy!
-
-That should be it.  You should be able to just run the project and access the application.
+There are now 2 versions of Declutarr.  I've broken it into 2 folders as they are very different.
