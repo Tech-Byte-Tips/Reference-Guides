@@ -19,14 +19,12 @@ Follow the following folder structure:
 ```
 /docker                   <-- Share created by Container Manager
 --/Containers             <-- Contains all the containers data
-----/xTeVe                <-- Contains the project for the xTeVe application
-------/config             <-- Contains the xTeVe configuration
-------/guide2go           <-- Contains the guide2go data
-------/owi2plex           <-- Contains the owi2plex data
-------/tmp                <-- Contains temporary files
-------/tvheadend          <-- Contains the TVHeadEnd data
+----/TVHeadend            <-- Contains the data for the TVHeadend application
+------/config             <-- Contains the TVHeadend configuration
+------/recordings         <-- Contains the dvr recordings
 --/Projects               <-- Contains the Container Manager projects
-------/compose.yaml       <-- The xTeVe docker compose file
+----/TVHeadend            <-- Contains the project for the TVHeadend application
+------/compose.yaml       <-- The TVHeadend docker compose file
 ```
 
 # The Docker Compose file

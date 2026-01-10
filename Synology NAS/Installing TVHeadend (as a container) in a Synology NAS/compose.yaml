@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  # Container #1 - TVHeadend
+  tvheadend:
+    image: linuxserver/tvheadend:latest
+    container_name: TVHeadend
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+    volumes:
+      - /volume1/docker/Containers/TVHeadend/config:/config
+      #- /volume1/docker/Containers/TVHeadend/recordings:/recordings
+    ports:
+      # NAS | Container
+      - 9981:9981 # Web UI (For Plex, Jellyfin, Emby)
+      #- 9982:9982 # HTSP streaming (For Kodi, TvhClient, Smart TV apps, Custom HTSP clients)
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        memory: 1G
+    restart: unless-stopped
+
+# When set up add the Channels and EPG to Jellyfin with the following URLS:
+# http://<NAS IP>:9981/playlist/channels.m3u
+# http://<NAS IP>:9981/xmltv/channels
