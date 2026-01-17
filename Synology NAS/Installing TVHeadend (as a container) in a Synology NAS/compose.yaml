@@ -4,7 +4,7 @@ services:
 
   # Container #1 - TVHeadend
   tvheadend:
-    image: linuxserver/tvheadend:latest
+    image: tvheadend/tvheadend:latest
     container_name: TVHeadend
     environment:
       - TZ=America/New_York

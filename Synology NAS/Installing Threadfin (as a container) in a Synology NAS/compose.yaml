@@ -1,0 +1,19 @@
+version: '3'
+# This Docker Compose uses the older version of xTeve
+services:
+  # Container #1 - Threadfin
+  threadfin:
+    image: prengineer/threadfin:latest #V 1.2 (40)
+    container_name: Threadfin
+    ports:
+      # NAS | Container
+      - 34400:34400
+    environment:
+      - TZ=America/New_York
+      - PUID=1026
+      - PGID=100
+      #- THREADFIN_DEBUG=3
+    volumes:
+      - "/volume1/docker/Containers/Threadfin/config:/home/threadfin/conf"
+      - "/volume1/docker/Containers/Threadfin/temp:/tmp/threadfin"
+    restart: unless-stopped
