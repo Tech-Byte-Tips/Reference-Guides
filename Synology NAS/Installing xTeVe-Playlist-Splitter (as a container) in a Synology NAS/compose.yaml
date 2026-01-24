@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  # Container #1 - Playlist Splitter
+  splitter: 
+    image: prengineer/xteve-playlist-splitter:latest
+    container_name: Playlist-Splitter
+    volumes:
+      # NAS | Container
+      - "/volume1/docker/Containers/xTeVe-Playlist-Splitter:/data"
+    environment:
+      - LIST="https://iptvprivateserver.to/api/channels"
+      - PLAYLIST="https://iptvprovider.com/get.php?username=YOURUSERNAME&password=YOURPASSWORD&type=m3u_plus&output=ts"
+      - SCHEDULE="0 3 * * 0"
+    ports:
+      # NAS | Container
+      - 8080:8080
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: unless-stopped
