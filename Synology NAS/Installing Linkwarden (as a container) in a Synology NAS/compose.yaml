@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+
+  # Container 1 - Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: LW-Postgres
+    env_file: .env
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/LinkWarden/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Container 2 - Meili Search
+  meilisearch:
+    image: getmeili/meilisearch:v1.12.8
+    container_name: LW-MeiliSearch
+    env_file:
+      - .env
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/LinkWarden/meilisearch:/meili_data
+    restart: unless-stopped    
+
+  # Container 3 - App
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:latest # comment to build from source
+    container_name: Linkwarden
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+    ports:
+      # NAS | Container
+      - 3000:3000
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/LinkWarden/data:/data/data
+    depends_on:
+      - postgres
+      - meilisearch
+    restart: unless-stopped
