@@ -1,0 +1,70 @@
+version: "3"
+
+services:
+
+  # Container 1 - App
+  app:
+    image: ghcr.io/nathanvaughn/webtrees:latest
+    container_name: WebTrees
+    environment:
+      # Use pretty URLs [ True | False || 1 | 0 ]
+      PRETTY_URLS: "1"
+      # Enable HTTPS  [ True | False || 1 | 0 ]
+      HTTPS: "0"
+      # Enable 301 redirect to HTTPS  [ True | False || 1 | 0 ]
+      HTTPS_REDIRECT: "0"
+      # Localization language [ https://github.com/fisharebest/webtrees/tree/main/resources/lang/ ]
+      LANG: "en-US"
+      # Base URL of the installation [ http://IP:port || https://webtrees.domain.tld ]
+      BASE_URL: "http://10.0.0.73:8888"
+      # First administrator account
+      WT_USER: "username"
+      # The full name of the first administration account
+      WT_NAME: "Full Name"
+      # The password for the first administrator account
+      WT_PASS: "apppassword"
+      # The e-mail for the first administrator account
+      WT_EMAIL: "me@example.com"
+      # User to run the container as (for read/write permissions)
+      PUID: "1026"
+      # Group of the user
+      PGID: "100"
+      # Time zone
+      TZ: "America/New_York"
+    ports:
+      # NAS | Container
+      - 8888:80
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/WebTrees/app:/var/www/webtrees/data/
+    restart: unless-stopped
+    # Wait for the database to be up before running this container
+    depends_on:
+      - db
+
+  # Container 2 - DB
+  db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: WebTrees-DB
+    environment:
+      # The database name
+      MYSQL_DATABASE: "webtrees"
+      # The database access user
+      MYSQL_USER: "webtrees"
+      # The database root access password
+      MYSQL_ROOT_PASSWORD: "rootpassword"
+      # The database access password
+      MYSQL_PASSWORD: "dbpassword"
+      # User to run the container as (for read/write permissions)
+      PUID: "1026"
+      # Group of the user
+      PGID: "100"
+      # Time zone
+      TZ: "America/New_York"
+    ports:
+      # NAS | Container
+      - 3306:3306
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/WebTrees/db:/config
+    restart: unless-stopped
