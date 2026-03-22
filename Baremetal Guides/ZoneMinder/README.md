@@ -322,6 +322,16 @@ Test the configuration:
 ./update-changeip.sh
 ```
 
+Make the script run automatically every day at midnight to update the IP, using a cron job:
+
+```
+crontab -e
+```
+
+```
+0 0 * * * /path/to/script/update-changeip.sh
+```
+
 ## Step 19 - Expose publicly using SSL
 
 We need Nginx to act as a reverse proxy.
