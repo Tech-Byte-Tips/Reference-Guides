@@ -285,7 +285,7 @@ Click Save.
 
 Wait a little and the camera should turn green.  You should also see if it is recording and capturing the feed.
 
-## Step 18 - Exposing with a free subdomain
+## Step 18 - Automatically updating a DDNS entry (free subdomain)
 
 Get a free subdomain from Changeip.com.
 
@@ -328,11 +328,27 @@ Make the script run automatically every day at midnight to update the IP, using 
 crontab -e
 ```
 
+Add the following at the end:
+
 ```
+# Update the free domain from Change IP
 0 0 * * * /path/to/script/update-changeip.sh
 ```
 
-## Step 19 - Expose publicly using SSL
+It will run every day at midnight.
+
+## Step 19 - Exposing through the router
+
+In order to access the application from the public internet.  The router must allow traffic to the machine
+using ports 80 and 443.
+
+This varies per router model.  Look up details on your specific router on how to do port-forwarding.
+
+You should first make sure that your device has a static private ip in your network.
+
+Then you should port forward ports 80 and 443 on TCP/UDP to the IP of your machine.
+
+## Step 20 - Expose publicly using SSL
 
 We need Nginx to act as a reverse proxy.
 
