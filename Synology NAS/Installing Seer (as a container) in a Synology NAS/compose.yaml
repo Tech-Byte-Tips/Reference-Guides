@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+
+  # Container 1 - Seer
+  app:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: Seer
+    # By default, the container runs as 1000 which is not authorized
+    user: "1026:100"
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/New_York
+      # The port for the container to listen on
+      - PORT=8078
+    ports:
+      # NAS | Container
+      - 8078:8078
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Seerr:/app/config
+    restart: unless-stopped
