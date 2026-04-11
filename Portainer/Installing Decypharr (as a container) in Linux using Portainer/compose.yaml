@@ -1,0 +1,30 @@
+services:
+
+  # Container #1 - Decypharr App
+  decypharr:
+    image: cy01/blackhole:latest
+    container_name: Decypharr
+    # Identify your user ID and group ID with the command "id" in the terminal
+    user: "1000:1000"
+    ports:
+      # On the host | Container
+      - "8282:8282"
+    volumes:
+      # Needs access to the /mnt directory to create mounts in there that are accessible to the host
+      # uses rshared (recursive sharing) of the mounted virtual file systems.
+      # Note: Synology prevents this
+      - /Media:/Media:rshared
+      # Location of the config file in the machine
+      - /docker/Containers/Decypharr:/app
+    restart: unless-stopped
+    devices:
+      # Needed to mount
+      # NOTE: Synology usually prevents this at the kernel level
+      - /dev/fuse:/dev/fuse:rwm
+    cap_add:
+      # Required to create or manage FUSE mounts
+      - SYS_ADMIN
+    security_opt:
+      # Needed so that FUSE operations are not blocked
+      # Note: Synology does not allow this
+      - apparmor:unconfined
