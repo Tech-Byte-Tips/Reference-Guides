@@ -1,0 +1,48 @@
+services:
+
+  # Container 1 - App
+  grimmory:
+    image: grimmory/grimmory:latest
+    container_name: Grimmory
+    environment:
+      - USER_ID=1026
+      - GROUP_ID=100
+      - TZ=America/New_York
+      - DATABASE_URL=jdbc:mariadb://mariadb:3306/grimmory
+      - DATABASE_USERNAME=grimmory
+      - DATABASE_PASSWORD=grimmorypassword
+      - BOOKLORE_PORT=6060
+    ports:
+      # NAS | Container
+      - 6060:6060
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Grimmory/data:/app/data
+      - /volume1/docker/Containers/Grimmory/books:/books
+      - /volume1/docker/Containers/Grimmory/import:/bookdrop
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Container 2 - Database
+  mariadb:
+    image: lscr.io/linuxserver/mariadb:11.4.5
+    container_name: MariaDB
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+      - MYSQL_ROOT_PASSWORD=SomeStrongPassword
+      - MYSQL_DATABASE=grimmory
+      - MYSQL_USER=grimmory
+      - MYSQL_PASSWORD=grimmorypassword
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Grimmory/db:/config
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
