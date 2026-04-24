@@ -1,0 +1,10 @@
+services:
+  reclip:
+    image: xsrf/reclip:latest
+    container_name: ReClip
+    environment:
+      - TZ=America/New_York
+    ports:
+      # NAS | Container
+      - 8899:8899
+    restart: unless-stopped
