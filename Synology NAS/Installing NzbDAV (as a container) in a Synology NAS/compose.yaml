@@ -1,0 +1,17 @@
+services:
+
+  # Container: NZBDAV
+  nzbdav:
+    image: nzbdav/nzbdav:latest
+    container_name: NzbDAV
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/NzbDAV/config:/config
+    ports:
+        # Exposed on NAS | Inside Container
+      - 3000:3000
+    restart: unless-stopped
