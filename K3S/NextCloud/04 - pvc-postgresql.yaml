@@ -1,0 +1,17 @@
+# Create a Persistent Volume Claim for the pod to access the data directory
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pvc
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  # Name of the volume to tie to this claim
+  volumeName: postgresql-pv
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi

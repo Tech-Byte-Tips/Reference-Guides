@@ -1,0 +1,36 @@
+# This file is used to create a Kubernetes Ingress resource for the NextCloud application.
+# The Ingress allows external traffic to access the NextCloud service using the specified hostname and path.
+# It also includes annotations for Traefik middleware to enhance security and manage redirects, as well as TLS configuration for secure communication.
+# NOTE: Make sure to replace the hostname and TLS secret name with your actual values before applying this configuration.
+
+# Ingress for the nextcloud application
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud-ingress
+  namespace: nextcloud
+  annotations:
+    # Middleware for security headers and redirects
+    traefik.ingress.kubernetes.io/router.middlewares: nextcloud-headers@kubernetescrd,nextcloud-redirects-https@kubernetescrd,nextcloud-redirects-webdav@kubernetescrd
+    # This ingress is for Traefik v2 entrypoints
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    # Use the Production Let's Encrypt Issuer
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: nextcloud.mylab.changeip.co
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nextcloud
+                port:
+                  number: 80
+  tls:
+    - secretName: nextcloud-tls
+      hosts:
+        - nextcloud.mylab.changeip.co

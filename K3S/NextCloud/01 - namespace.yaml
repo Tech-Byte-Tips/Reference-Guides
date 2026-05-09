@@ -1,0 +1,8 @@
+# Create the Nextcloud Namespace (if not exist)
+
+kind: Namespace
+apiVersion: v1
+metadata:
+ name: nextcloud
+ labels:
+   name: nextcloud

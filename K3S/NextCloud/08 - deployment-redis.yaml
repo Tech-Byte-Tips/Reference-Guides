@@ -1,0 +1,32 @@
+# Create a Kubernetes Deployment for Redis, which is a key-value store used by NextCloud for caching and session management.
+# The deployment specifies that one replica of the Redis container should be running at all times.
+# The container uses the official Redis image from Docker Hub and exposes port 6379, which is the default port for Redis.
+# The environment variable TZ is set to configure the timezone for the Redis container.
+# The restart policy is set to Always to ensure that the container is restarted if it crashes.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: nextcloud
+  labels:
+    app: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - image: redis:alpine
+          name: redis
+          ports:
+            - containerPort: 6379
+          env:
+            - name: TZ
+              value: America/New_York
+      restartPolicy: Always

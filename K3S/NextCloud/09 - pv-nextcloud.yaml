@@ -1,0 +1,58 @@
+# This file is used to create Persistent Volumes for NextCloud.
+# It defines two Persistent Volumes: one for the NextCloud application data and another for the NextCloud user data.
+# Both volumes are configured to use NFS as the storage backend, with specific paths on a NAS server.
+# NOTE: Make sure to adjust the paths and server IP according to your environment before applying this configuration.
+
+# Create an appdata Persistent Volume
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-appdata-pv
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    # Mount using NFS v 4.1
+    - nfsvers=4.1
+  nfs:
+    # The path in the NAS
+    path: "/volume4/docker/k3s/NextCloud/appdata"
+    # The NAS IP
+    server: 10.0.0.21
+    # Make sure to allow to write
+    readOnly: false
+
+---
+
+# Create a userdata Persistent Volume
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-userdata-pv
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    # Mount using NFS v 4.1
+    - nfsvers=4.1
+  nfs:
+    # The path in the NAS
+    path: "/volume4/docker/k3s/NextCloud/userdata"
+    # The NAS IP
+    server: 10.0.0.21
+    # Make sure to allow to write
+    readOnly: false

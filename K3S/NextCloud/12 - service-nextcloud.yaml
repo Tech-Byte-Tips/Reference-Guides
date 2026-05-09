@@ -1,0 +1,18 @@
+# This file is used to create a Kubernetes Service for the NextCloud application.
+# The Service exposes the NextCloud application on port 80 and allows other components within the cluster to communicate with it using the label selector "app: nextcloud".
+# NOTE: Make sure to apply this configuration after deploying the NextCloud application to ensure that it is accessible within the cluster.
+
+# Create the Exposed App Service
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  ports:
+  - port: 80
+  selector:
+    app: nextcloud

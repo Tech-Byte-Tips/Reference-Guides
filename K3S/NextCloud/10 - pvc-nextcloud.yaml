@@ -1,0 +1,41 @@
+# This file is used to create Persistent Volume Claims for NextCloud.
+# It defines two Persistent Volume Claims: one for the NextCloud application data and another for the NextCloud user data.
+# Both claims are configured to use the corresponding Persistent Volumes created in the previous step.
+
+# Create an appdata Persistent Volume Claim for the pod to access the directory
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-appdata-pvc
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  # Name of the volume to tie to this claim
+  volumeName: nextcloud-appdata-pv
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 500Mi
+
+---
+
+# Create a userdata Persistent Volume Claim for the pod to access the directory
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-userdata-pvc
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  # Name of the volume to tie to this claim
+  volumeName: nextcloud-userdata-pv
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi

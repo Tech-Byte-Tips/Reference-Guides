@@ -1,0 +1,109 @@
+# This file is used to create the Kubernetes Deployment for NextCloud.
+# It defines the desired state of the NextCloud application, including the number of replicas, container image, environment variables, and volume mounts.
+# The deployment will ensure that the specified number of NextCloud instances are running and will manage updates and rollouts.
+# NOTE: Make sure to adjust the environment variables and other settings as needed for your specific deployment scenario.
+
+# Create the App Deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+  labels:
+    app: nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      containers:
+        - image: nextcloud:production-apache
+          name: nextcloud
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: REDIS_HOST
+              value: redis
+            - name: POSTGRES_HOST
+              value: postgresql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_DB
+                  name: nextcloud-secrets
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: nextcloud-secrets
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: NEXTCLOUD_ADMIN_USER
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: NEXTCLOUD_ADMIN_PASSWORD
+                  name: nextcloud-secrets
+            - name: NEXTCLOUD_TRUSTED_DOMAINS
+              # NOTE: Adjust this to match your domain. This is crucial for security and proper functioning of NextCloud.
+              value: nextcloud.mylab.changeip.co
+            - name: NEXTCLOUD_DATA_DIR
+              value: /mnt/data            
+            - name: TRUSTED_PROXIES
+            # NOTE: Adjust these values based on your network configuration.
+            # The example includes:
+            # - 10.42.0.0/16: Default CIDR range for k3s cluster pods.
+            # - 10.43.0.0/16: Default CIDR range for k3s cluster services.
+            # - 10.0.0.0/24: My local network range (adjust this to match your actual local network).
+              value: 10.42.0.0/16 10.43.0.0/16 10.0.0.0/24
+            - name: APACHE_DISABLE_REWRITE_IP
+              value: "1"
+            - name: OVERWRITEHOST
+              # NOTE: Adjust this to match your domain. This is crucial for security and proper functioning of NextCloud.
+              value: nextcloud.mylab.changeip.co
+            - name: OVERWRITEPROTOCOL
+              value: https
+            - name: OVERWRITECLIURL
+              # NOTE: Adjust this to match your domain. This is crucial for security and proper functioning of NextCloud.
+              value: https://nextcloud.mylab.changeip.co
+            - name: OVERWRITEWEBROOT
+              value: "/"
+            - name: PHP_MEMORY_LIMIT
+              value: 4G
+            - name: PHP_UPLOAD_LIMIT
+              value: 1G
+            - name: TZ
+              value: America/New_York
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nextcloud-appdata-storage
+              readOnly: false
+            - mountPath: /mnt/data
+              name: nextcloud-userdata-storage
+              readOnly: false
+      volumes:
+        - name: nextcloud-appdata-storage
+          persistentVolumeClaim:
+            claimName: nextcloud-appdata-pvc
+        - name: nextcloud-userdata-storage
+          persistentVolumeClaim:
+            claimName: nextcloud-userdata-pvc

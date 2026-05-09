@@ -1,0 +1,16 @@
+# This file is used to create a Kubernetes Service for Redis, which is a key-value store used by NextCloud for caching and session management.
+# The service exposes port 6379, which is the default port for Redis.
+# The selector ensures that the service routes traffic to the appropriate Redis pods based on the label "app: redis".
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: nextcloud
+  labels:
+    app: redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis

@@ -1,0 +1,25 @@
+# Create a Persistent Volume
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-pv
+  namespace: nextcloud
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - hard
+    # Mount using NFS v 4.1
+    - nfsvers=4.1
+  nfs:
+    # The path in the NAS
+    path: "/volume4/docker/k3s/NextCloud/db"
+    # The NAS IP
+    server: 10.0.0.21
+    # Make sure to allow to write
+    readOnly: false

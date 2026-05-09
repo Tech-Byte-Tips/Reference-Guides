@@ -1,0 +1,47 @@
+# This file defines two Traefik middlewares for the NextCloud application.
+# The first middleware, "headers", is used to set security-related HTTP headers to enhance the security of the application.
+# The second middleware, "redirects", is used to redirect HTTP traffic to HTTPS and to handle specific URL patterns for WebDAV requests.
+# NOTE: Make sure to apply these middlewares in your Traefik configuration to ensure they are effective.
+
+# Middleware to set security-related HTTP headers
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: headers
+  namespace: nextcloud
+spec:
+  headers:
+    frameDeny: true
+    browserXssFilter: true
+    customResponseHeaders:
+      Strict-Transport-Security: "15552000"
+      X-Frame-Options: SAMEORIGIN
+
+---
+
+# Middleware to redirect HTTP to HTTPS
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirects-https
+  namespace: nextcloud
+spec:
+  redirectScheme:
+    permanent: true
+    scheme: https
+
+---
+
+# Middleware to handle WebDAV (Web Distributed Authoring and Versioning) requests
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirects-webdav
+  namespace: nextcloud
+spec:
+  redirectRegex:
+    regex: https://(.*)/.well-known/(card|cal)dav
+    replacement: https://$1/remote.php/dav/

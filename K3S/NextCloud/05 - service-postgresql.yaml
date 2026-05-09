@@ -1,0 +1,18 @@
+# Create the PostgreSQL Service for NextCloud.
+# This service will allow the NextCloud application to communicate with the PostgreSQL database.
+# It listens on port 5432, which is the default port for PostgreSQL.
+# The service is labeled with "app: postgresql" to allow for easy selection by other resources, such as Deployments or StatefulSets that will use this service to connect to the database.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+  namespace: nextcloud
+  labels:
+    app: postgresql
+spec:
+  ports:
+    - port: 5432
+      name: postgresql
+  selector:
+    app: postgresql

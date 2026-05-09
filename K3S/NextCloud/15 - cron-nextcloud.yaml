@@ -1,0 +1,28 @@
+# This file is used to create a CronJob in Kubernetes for NextCloud.
+# The CronJob will run a scheduled task to execute the NextCloud cron.php script every 5 minutes.
+# This is essential for maintaining the health and performance of the NextCloud application, as it handles background tasks such as file scanning, notifications, and other maintenance activities.
+# NOTE: Adjust the URL in the curl command to match your actual NextCloud domain. This is crucial for security and proper functioning of the CronJob.
+
+# CronJob for NextCloud
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-cron
+  namespace: nextcloud
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: nextcloud
+            image: nextcloud:production-apache
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            # NOTE: Adjust this to match your domain. This is crucial for security and proper functioning of NextCloud.
+            - curl https://nextcloud.mylab.changeip.co/cron.php
+          restartPolicy: OnFailure
