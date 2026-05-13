@@ -1,0 +1,46 @@
+services:
+
+  # Container SubGen
+  subgen:
+    image: mccloud/subgen:latest   # or mccloud/subgen:cuda
+    container_name: SubGen
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities:
+                - gpu
+    environment:
+      - PUID=1026
+      - PGID=100
+      # Core Subgen settings
+      - TRANSCRIBE_DEVICE=cuda
+      # Where to store the models
+      - MODEL_PATH=/models
+      # Whisper model selection
+      - WHISPER_MODEL=medium
+      - WHISPER_THREADS=4
+      # Optional concurrency tuning
+      - CONCURRENT_TRANSCRIPTIONS=1
+      #- WEBHOOKPORT=9000
+      # Optional debugging
+      - DEBUG=False
+      - LOG_LEVEL=info     
+      # Whether to update script on startup (default: false)
+      - UPDATE=False
+      # For Plex integration (optional)
+      #- PLEXTOKEN=plextoken
+      #- PLEXSERVER=http://plexserver:32400
+      # For Jellyfin integration (optional)
+      #- JELLYFINTOKEN=token here
+      #- JELLYFINSERVER=http://jellyfin:8096
+    volumes:
+      # Persistent model storage
+      - /volume4/docker/Containers/SubGen/models:/models
+      # Media paths (must match Plex/Jellyfin/Emby paths)
+      - /volume1/HTPC:/HTPC
+    ports:
+      - "9000:9000"   # Subgen web UI + API      
+    restart: unless-stopped
