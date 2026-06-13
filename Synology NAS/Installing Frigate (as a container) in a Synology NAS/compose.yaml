@@ -1,0 +1,48 @@
+services:
+
+  # Container - Frigate
+  frigate:
+    container_name: Frigate
+    image: ghcr.io/blakeblackshear/frigate:stable
+    # Shared Memory - Update for your cameras based on calculation
+    shm_size: "512mb"
+    # Allow enough time to shut down the various services
+    stop_grace_period: 30s
+    environment:
+      PUID: "1026"
+      PGID: "100"
+      FRIGATE_RTSP_PASSWORD: "password"
+    #devices:
+      # Passes the USB Coral, needs to be modified for other versions
+      #- /dev/bus/usb:/dev/bus/usb
+      # Passes a PCIe Coral, follow driver instructions here https://github.com/jnicolson/gasket-builder
+      #- /dev/apex_0:/dev/apex_0
+      # For Raspberry Pi 4B
+      #- /dev/video11:/dev/video11
+      # AMD / Intel GPU, needs to be updated for your hardware
+      #- /dev/dri/renderD128:/dev/dri/renderD128
+      # Intel NPU
+      #- /dev/accel:/dev/accel
+    volumes:
+      # Pass the timezone from the machine
+      - /etc/localtime:/etc/localtime:ro
+      # 
+      - /volume1/docker/Containers/Frigate/config:/config
+      - /volume1/docker/Containers/Frigate/media:/media/frigate
+      # 1GB In-memory filesystem for recording segment storage
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      # Web UI (http) - Internal unauthenticated access. Expose carefully.
+      - "8000:5000"
+      # Web UI (https)
+      #- "8971:8971"
+      # RTSP feeds
+      - "8554:8554"
+      # WebRTC over tcp
+      - "8555:8555/tcp"
+      # WebRTC over udp
+      - "8555:8555/udp"
+    restart: unless-stopped

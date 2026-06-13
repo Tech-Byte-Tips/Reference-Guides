@@ -1,0 +1,112 @@
+mqtt:
+  enabled: false
+
+# Recording settings
+record:
+  # Enable or disable recording of all frames to disk regardless of tracked objects or motion.
+  enabled: true
+  # Continuous recording settings
+  continuous:
+    # Optional: Number of days to retain recordings
+    days: 14
+  # Make sure that files deleted from disk are not in DB
+  sync_recordings: True
+
+# Define your cameras here
+cameras:
+  # A block like this one for each camera you have. You can copy and paste this block and just change the name and the URL.
+  camera1:
+    # Whether it is enabled or not. If not enabled, Frigate will ignore this camera and not try to connect to it.
+    enabled: true
+    # The ffmpeg configuration for this camera. This is where you specify the URL of the camera and any input arguments.
+    ffmpeg:
+      inputs:
+        # The local URL of the camera stream. This should be the same as the URL you specified in the go2rtc section below.
+        - path: rtsp://127.0.0.1:8554/camera1
+          # The input arguments for ffmpeg. This is where you can specify any additional arguments that you want to pass to ffmpeg when it connects to the camera.
+          # The preset-rtsp-restream is a preset that is optimized for restreaming RTSP streams and should work well for most cameras.
+          input_args: preset-rtsp-restream
+          # The roles that this input should be used for. In this case, we are only using it for recording, but you could also use it for detection or live streaming if you wanted to.
+          roles:
+            - record
+    # The detect configuration for this camera. This is where you can specify whether you want to enable object detection for this camera or not.
+    # In this case, we are disabling it because we are only using this camera for recording.
+    detect:
+      enabled: false
+    # The live configuration for this camera. This is where you can specify the live stream settings for this camera.
+    # In this case, we are just creating a single stream called "Stream 1" that will be available in the Frigate UI.
+    live:
+      streams:
+        Stream 1: camera1
+
+  camera2:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/camera2
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+    detect:
+      enabled: false
+    live:
+      streams:
+        Stream 1: camera2
+
+  camera3:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/camera3
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+    detect:
+      enabled: false
+    live:
+      streams:
+        Stream 1: camera3
+
+  camera4:
+    enabled: true
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/camera4
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+    detect:
+      enabled: false
+    live:
+      streams:
+        Stream 1: camera4
+
+# The go2rtc configuration. This is where you specify the URLs of your cameras and any additional settings for go2rtc.
+go2rtc:
+  # The global settings for go2rtc. This is where you can specify any additional settings that you want to apply to all cameras.
+  streams:
+    # The URL of the camera stream. This should be the same as the path you specified in the ffmpeg inputs above.
+    # All of my cameras are Amcrest and this is the proper URL for them. You may need to change this URL if you have a different brand of camera.
+    camera1:
+      - rtsp://<camera_user>:<camera_password>@<camera_ip>:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif
+    camera2:
+      - rtsp://<camera_user>:<camera_password>@<camera_ip>:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif
+    camera3:
+      - rtsp://<camera_user>:<camera_password>@<camera_ip>:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif
+    camera4:
+      - rtsp://<camera_user>:<camera_password>@<camera_ip>:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif
+
+# The camera groups configuration. This is where you can specify any groups that you want to create for your cameras.
+# Groups are just a way to organize your cameras in the Frigate UI.
+# In this case, we are creating a group called "Home" that contains all of our cameras.
+camera_groups:
+  # The name of the group. This is what will be displayed in the Frigate UI.
+  Home:
+    order: 1
+    icon: LuHouse
+    cameras:
+      - camera1
+      - camera2
+      - camera3
+      - camera4
+version: 0.17-0
