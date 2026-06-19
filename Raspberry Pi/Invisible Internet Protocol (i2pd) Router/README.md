@@ -295,6 +295,7 @@ http://identiguy.i2p/hosts.txt
 http://notbob.i2p/hosts.txt
 http://stats.i2p/cgi-bin/newhosts.txt
 http://skank.i2p/hosts.txt
+http://opentracker-public.i2p/subscriptions.txt
 ```
 
 ## Management - I2PControl
