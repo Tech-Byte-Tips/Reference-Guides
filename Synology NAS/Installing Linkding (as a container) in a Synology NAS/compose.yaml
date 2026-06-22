@@ -1,0 +1,21 @@
+services:
+  
+  # Container Linkding
+  linkding:
+    container_name: "Linkding"
+    image: sissbruecker/linkding:latest-plus
+    user: "1026:100"
+    environment:
+      # Username of the initial superuser to create
+      - LD_SUPERUSER_NAME=admin
+      # Password for the initial superuser
+      - LD_SUPERUSER_PASSWORD=password
+      # Option to disable background tasks
+      - LD_DISABLE_BACKGROUND_TASKS=False
+      # Option to disable URL validation for bookmarks completely
+      - LD_DISABLE_URL_VALIDATION=False
+    ports:
+      - "9090:9090"
+    volumes:
+      - "/volume1/docker/Containers/Linkding:/etc/linkding/data"
+    restart: unless-stopped
