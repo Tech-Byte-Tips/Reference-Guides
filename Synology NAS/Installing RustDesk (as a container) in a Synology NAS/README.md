@@ -6,7 +6,9 @@ I would appreciate a donation if you found it useful.
 
 You can also support me by sending a BitCoin donation to the following address:
 
+```
 19JXFGfRUV4NedS5tBGfJhkfRrN2EQtxVo
+```
 
 # Building the folder structure
 

@@ -10,6 +10,8 @@ You can also support me by sending a BitCoin donation to the following address:
 19JXFGfRUV4NedS5tBGfJhkfRrN2EQtxVo
 ```
 
-# About
+# 
 
-There are now 2 versions of Declutarr.  I've broken it into 2 folders as they are very different.
+# Enjoy!
+
+That should be it.
