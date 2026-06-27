@@ -1,0 +1,25 @@
+services:
+    # Container #1 - Application
+    chaptarr:
+        image: robertlordhood/chaptarr:latest
+        container_name: Chaptarr
+        environment:
+          PUID: 1026
+          PGID: 100
+          TZ: America/New_York
+          # (Optional) PostgreSQL database
+          # Chaptarr__Postgres__Host: <IP>
+          # Chaptarr__Postgres__Port: 5432
+          # Chaptarr__Postgres__User: chaptarr
+          # Chaptarr__Postgres__Password: superpassword
+          # Chaptarr__Postgres__MainDb: chaptarr-main
+          # Chaptarr__Postgres__LogDb: chaptarr-log
+          # Chaptarr__Postgres__CacheDb: chaptarr-cache
+        volumes:
+          - /volume1/docker/Containers/Chaptarr/config:/config
+          - /volume1/HTPC/Media/Books:/books
+          - /volume1/HTPC/Media/AudioBooks:/audiobooks
+          - /volume1/HTPC/Download/completed/readarr:/downloads
+        ports:
+          - 8789:8789
+        restart: "unless-stopped"
