@@ -1,0 +1,22 @@
+services:
+  # Container #1 - Shelfmark app
+  shelfmark:
+    image: ghcr.io/calibrain/shelfmark:latest
+    container_name: Shelfmark
+    environment:
+      PUID: 1026
+      PGID: 100
+    ports:
+      # NAS | Container
+      - 8084:8084
+    volumes:
+      # NAS | Container
+      # App configuration
+      - /volume1/docker/Containers/Shelfmark:/config
+      # Default destination for book downloads
+      - /volume1/HTPC/Media/Books:/books
+      # Default destination for audio book downloads      
+      - /volume1/HTPC/Media/AudioBooks:/audiobooks
+      # Required for torrent / usenet - path must match your download client's volume exactly
+      - /volume1/HTPC/Download/completed/readarr:/HTPC
+    restart: unless-stopped
