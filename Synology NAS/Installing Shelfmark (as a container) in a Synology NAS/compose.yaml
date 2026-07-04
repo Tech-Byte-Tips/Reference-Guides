@@ -18,5 +18,5 @@ services:
       # Default destination for audio book downloads      
       - /volume1/HTPC/Media/AudioBooks:/audiobooks
       # Required for torrent / usenet - path must match your download client's volume exactly
-      - /volume1/HTPC/Download/completed/readarr:/HTPC
+      - /volume1/HTPC:/HTPC
     restart: unless-stopped
