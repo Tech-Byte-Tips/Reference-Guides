@@ -1,0 +1,134 @@
+version: "3.9"
+
+services:
+  # Container #1 - Frontend UI
+  # --------------------------
+  # Serves the User Interface in the browser.  Interacts with the API Backend, the Exporter, and the MCP server.
+  penpot-frontend:
+    image: penpotapp/frontend:2.16
+    container_name: Penpot-UI
+    environment:
+      PENPOT_FLAGS: "disable-email-verification enable-smtp enable-prepl-server disable-secure-session-cookies enable-mcp"
+      PENPOT_PUBLIC_URI: "http://<IP>:9001"
+      PENPOT_HTTP_SERVER_MAX_BODY_SIZE: 367001600
+      PENPOT_HTTP_SERVER_MAX_MULTIPART_BODY_SIZE: 367001600
+    ports:
+      - "9001:8080"
+    volumes:
+      - penpot_assets:/opt/data/assets
+    depends_on:
+      - penpot-backend
+      - penpot-exporter
+      - penpot-mcp
+    restart: always
+
+  # Container #2 - Backend Service
+  # --------------------------
+  # Handles the core logic and exposes it to the UI with an API.  Things like: User Accounts, Projects, Files, Components, Permissions, 
+  # Asset Metadata, SMTP email sending, Database Queries, and Notifications
+  penpot-backend:
+    image: penpotapp/backend:2.16
+    container_name: Penpot-API
+    environment:
+      PENPOT_FLAGS: "disable-email-verification enable-smtp enable-prepl-server disable-secure-session-cookies enable-mcp"
+      PENPOT_PUBLIC_URI: "http://<IP>:9001"
+      PENPOT_HTTP_SERVER_MAX_BODY_SIZE: 367001600
+      PENPOT_HTTP_SERVER_MAX_MULTIPART_BODY_SIZE: 367001600
+      PENPOT_SECRET_KEY: "change-this-insecure-key"
+
+      PENPOT_DATABASE_URI: "postgresql://penpot-postgres/penpot"
+      PENPOT_DATABASE_USERNAME: "penpot"
+      PENPOT_DATABASE_PASSWORD: "penpot"
+
+      PENPOT_REDIS_URI: "redis://penpot-valkey/0"
+
+      PENPOT_OBJECTS_STORAGE_BACKEND: "fs"
+      PENPOT_OBJECTS_STORAGE_FS_DIRECTORY: "/opt/data/assets"
+
+      PENPOT_TELEMETRY_ENABLED: "true"
+      PENPOT_TELEMETRY_REFERER: "compose"
+
+      PENPOT_SMTP_DEFAULT_FROM: "no-reply@example.com"
+      PENPOT_SMTP_DEFAULT_REPLY_TO: "no-reply@example.com"
+      PENPOT_SMTP_HOST: "penpot-mailcatch"
+      PENPOT_SMTP_PORT: "1025"
+      PENPOT_SMTP_TLS: "false"
+      PENPOT_SMTP_SSL: "false"
+    ports:
+      - "6060:6060"
+    volumes:
+      - penpot_assets:/opt/data/assets
+    depends_on:
+      - penpot-postgres
+      - penpot-valkey
+    restart: always
+
+  # Container #3 - Model Context Protocol for AI
+  # --------------------------
+  # Handles real-time collaboration like: Cursor Movement, live editing, presence tracking, syncing changes between users
+  penpot-mcp:
+    image: penpotapp/mcp:2.16
+    container_name: Penpot-MCP
+    restart: always
+
+  # Container #4 - Exporter
+  # --------------------------
+  # This communicates directly to the Frontend to render the designs.
+  # This service converts designs into: png, svg, pdf, and other formats.
+  penpot-exporter:
+    image: penpotapp/exporter:2.16
+    container_name: Penpot-Exporter
+    environment:
+      PENPOT_SECRET_KEY: "change-this-insecure-key"
+      PENPOT_PUBLIC_URI: "http://<IP>:9001"
+      PENPOT_INTERNAL_URI: "http://penpot-frontend:8080"
+      PENPOT_REDIS_URI: "redis://penpot-valkey/0"
+    depends_on:
+      - penpot-valkey
+    restart: always
+
+  # Container #5 - Database
+  # --------------------------
+  # This is the database for the system.  It stores things like: users, teams, projects, design metadata, invitations, sessions, etc.
+  penpot-postgres:
+    image: postgres:15
+    container_name: Penpot-DB
+    environment:
+      POSTGRES_DB: "penpot"
+      POSTGRES_USER: "penpot"
+      POSTGRES_PASSWORD: "penpot"
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - penpot_db:/var/lib/postgresql/data
+    restart: always
+
+  # Container #6 - Val Key
+  # --------------------------
+  # A cache that handles websocket notifications, real-time collaboration events, and temporary data
+  penpot-valkey:
+    image: valkey/valkey:8.1
+    container_name: Penpot-ValKey
+    environment:
+      VALKEY_EXTRA_FLAGS: "--maxmemory 128mb --maxmemory-policy volatile-lfu"
+    restart: always
+
+  # Container #7 - Mail Catcher
+  # --------------------------
+  # A fake SMTP server for testing purposes.
+  # It pretends to send and receive e-mails for registration and invite events to show them in the UI.
+  penpot-mailcatch:
+    image: sj26/mailcatcher:latest
+    container_name: Penpot-Mail
+    ports:
+      - "1080:1080"
+    expose:
+      - "1025"
+    restart: always
+
+volumes:
+  penpot_assets:
+  penpot_db:
+
+networks:
+  default:
+    name: penpot
