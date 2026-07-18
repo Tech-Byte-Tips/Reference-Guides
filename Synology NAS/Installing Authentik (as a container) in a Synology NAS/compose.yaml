@@ -1,0 +1,98 @@
+services:
+
+  # Container #1 - Database
+  postgresql:
+    image: postgres:16-alpine
+    container_name: Authentik-DB
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: password
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Authentik/DB:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # Container #2 - Cache
+  redis:
+    image: redis:7-alpine
+    container_name: Authentik-Cache
+    environment:
+      REDIS_PASSWORD: password
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Authentik/Redis:/data
+    command: ["redis-server", "--requirepass", "password"]
+    restart: unless-stopped
+
+  # Container #3 - Server
+  server:
+    image: ghcr.io/goauthentik/server:2026.5.4
+    container_name: Authentik-Server
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: password
+
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: password
+
+      AUTHENTIK_SECRET_KEY: L0NG_R@NDOM_S3CR3T_KEY_F0R_SECUR!TY_REAS0NS
+      AUTHENTIK_BOOTSTRAP_PASSWORD: password
+
+      # AUTHENTIK_EMAIL__HOST: smtp.example.com
+      # AUTHENTIK_EMAIL__USERNAME: your_smtp_username
+      # AUTHENTIK_EMAIL__PASSWORD: your_smtp_password
+      # AUTHENTIK_EMAIL__FROM: authentik@example.com
+
+      # AUTHENTIK_HOST: authentik.yourdomain.com
+    ports:
+      # NAS | Container
+      - "9000:9000"
+      - "9443:9443"
+    # shm_size: "512mb"
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/Authentik/Data:/data
+      - /volume1/docker/Containers/Authentik/Templates:/templates
+    command: server
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Container #4 - Worker
+  worker:
+    image: ghcr.io/goauthentik/server:2026.5.4
+    container_name: Authentik-Worker
+    # shm_size: "512mb"
+    # Needs to run as root to access Docker socket
+    user: "0:0"
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: password
+
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_REDIS__PASSWORD: password
+
+      AUTHENTIK_SECRET_KEY: L0NG_R@NDOM_S3CR3T_KEY_F0R_SECUR!TY_REAS0NS
+    volumes:
+      # NAS | Container
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /volume1/docker/Containers/Authentik/Data:/data
+      - /volume1/docker/Containers/Authentik/Certs:/certs
+      - /volume1/docker/Containers/Authentik/Templates:/templates
+    command: worker
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    restart: unless-stopped
