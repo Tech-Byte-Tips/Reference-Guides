@@ -53,8 +53,6 @@ Always make sure that your paths in the NAS are correct.  Those are the ones on 
 
 When the containers are spun up, reach the application at http://\<NAS IP\>:9000.
 
-Make sure to update the NAS IP in the Docker Compose to match what you use!
-
 As of the time of writing, you will need to log in using the following user with the bootstrap password that you put in the Docker Compose
 
 ```
