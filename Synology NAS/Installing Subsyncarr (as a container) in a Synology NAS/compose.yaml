@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+
+  # Container #1 - Subsyncarr
+  subsyncarr:
+    image: mrorbitman/subsyncarr:latest
+    container_name: Subsyncarr
+    environment:
+      # Replace with your own timezone
+      - TZ=America/New_York
+      # User and Group ID with permissions to folders
+      - PUID=1026
+      - PGID=100
+      # Runs every day at midnight by default
+      - CRON_SCHEDULE=0 0 * * *
+      # Comma-separated paths to scan (container paths)
+      - SCAN_PATHS=/anime,/movies,/tv
+      # Optional: To exclude directories
+      # - EXCLUDE_PATHS=/movies/temp,/tv/downloads
+      # Number of parallel processing tasks
+      - MAX_CONCURRENT_SYNC_TASKS=1
+      # Engines to use
+      - INCLUDE_ENGINES=ffsubsync,autosubsync,alass
+    ports:
+      # NAS | Container
+      - '3000:3000' # Web UI
+    volumes:
+      # NAS | Container
+      # Data/Config directory
+      - /volume1/docker/Containers/Subsyncarr:/app/data
+      # Mount your media directories
+      - /volume1/HTPC/Media/Anime:/anime
+      - /volume1/HTPC/Media/Movies:/movies
+      - /volume1/HTPC/Media/TV:/tv
+    # deploy:
+    #  resources:
+    #    limits:
+    #      # Hard limit
+    #      memory: 768M
+    #    reservations:
+    #      # Minimum guaranteed memory
+    #      memory: 128M
+    restart: unless-stopped
