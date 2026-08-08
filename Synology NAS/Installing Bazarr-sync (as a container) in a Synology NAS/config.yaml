@@ -1,0 +1,2 @@
+bazarr_url: http://<NASIP>:<port>
+bazarr_token: <your_api_token_here>

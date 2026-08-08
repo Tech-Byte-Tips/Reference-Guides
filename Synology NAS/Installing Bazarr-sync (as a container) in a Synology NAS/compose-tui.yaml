@@ -1,0 +1,20 @@
+services:
+
+  # Container #1 - Bazarr-sync
+  bazarr-sync:
+    image: ghcr.io/ajmandourah/bazarr-sync:latest
+    container_name: Bazarr-sync
+    volumes:
+      # NAS | Container
+      # Config file
+      - /volume1/docker/Containers/Bazarr-sync/config.yaml:/usr/src/app/config.yaml
+    command: ["sleep", "infinity"]
+    # deploy:
+    #  resources:
+    #    limits:
+    #      # Hard limit
+    #      memory: 768M
+    #    reservations:
+    #      # Minimum guaranteed memory
+    #      memory: 128M
+    restart: unless-stopped
