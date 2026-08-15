@@ -1,0 +1,17 @@
+FROM ./Qwen_Qwen3.5-2B-bf16.gguf
+TEMPLATE """{{- range .Messages }}
+{{- if eq .Role "system" }}<|im_start|>system
+{{ .Content }}<|im_end|>
+{{- else if eq .Role "user" }}<|im_start|>user
+{{ .Content }}<|im_end|>
+{{- else if eq .Role "assistant" }}<|im_start|>assistant
+{{ .Content }}<|im_end|>
+{{- end }}
+{{- end }}
+{{- if not .Prompt }}<|im_start|>assistant
+{{- end }}"""
+PARAMETER temperature 0.2
+PARAMETER num_ctx 32768
+PARAMETER num_predict 16384
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"
