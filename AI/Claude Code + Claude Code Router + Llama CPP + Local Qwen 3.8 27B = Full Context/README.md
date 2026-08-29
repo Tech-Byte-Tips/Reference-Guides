@@ -1,3 +1,9 @@
+## Public Service Announcement
+
+Currently there is a [bug](https://github.com/musistudio/claude-code-router/issues/1678) in Claude Caude Router that is not letting the model view and analyze images.
+
+As soon as this is fixed, I will update the guide to get the vision component working properly.
+
 ## Please Support This Project!
 
 I would appreciate a donation if you found it useful.
@@ -431,193 +437,6 @@ Newer versions may also work, but command-line options or application behavior c
 
    Extract the files there and delete the zip files when done.
 
-## Installing Claude Code
-
-1. Open a PowerShell window and run the following command to install Claude Code:
-
-   ```
-   irm https://claude.ai/install.ps1 | iex
-   ```
-
-   This will create the folder that we mentioned above for Claude Code.
-
-2. Create the settings.json file for Claude Code in the following folder:
-
-   ```
-   C:\Users\<user>\.claude
-   ```
-
-   Put the following contents:
-
-   ```
-   {
-     "env": {
-       "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-       "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
-       "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
-       "DISABLE_TELEMETRY": "1"
-     },
-     "autoUpdatesChannel": "latest",
-     "theme": "dark"
-   }
-   ```
-
-   NOTE: The file is minimal on purpose.  The configurations flow from Claude Code Router.
-
-## Installing the Claude Code Router
-
-Visit their official GitHub repository release files:
-
-```
-https://github.com/musistudio/claude-code-router/releases
-```
-
-Download the installer file:
-
-```
-https://github.com/musistudio/claude-code-router/releases/download/v3.0.22/Claude-Code-Router_3.0.22.exe
-```
-
-Run the installer and follow the instructions.
-
-## Configuring Claude Code Router
-
-1. Run the Router
-
-2. In the `Choose Provider` option:
-
-    | Property | Value |
-    |-|-|
-    | Preset | Custom API Provider |
-    | Name | Llama CPP |
-    | API Endpoint | http://localhost:11434/v1 |
-
-   Click on `Next Step`.
-
-3. In the `Choose API Key`:
-
-    | Property | Value |
-    |-|-|
-	  | API Key | local |
-
-   Click on `Next Step`.
-
-4. The existing model should have been recognized and added.  Configure as follows:
-
-    | Property | Value | Notes |
-    |-|-|-|
-    | Context Window | 262144	| Full context
-    | All Pricing Values | 0	| We don't care about pricing estimates
-    | Reasoning Level | High | If fails use Xtra High or Medium
-    | Fast Mode | Off	| Until we get everything working properly
-    | Web Search | Off	| We don't have a web search provider attached
-    | Image | On	| We are multimodal capable
-
-   Click on `Next Step`.
-
-5. Open the `Advanced` menu and change the following selections in Protocols Details:
-
-   * Check OpenAI Chat
-   * Uncheck everything else
-
-   Leave the other settings as they are.  Click the `Check Connection` button then `Start check`.
-
-   We should see the request coming to the terminal window of Llama-cpp.  Finally we should see a message like:
-
-   ```
-   Check results:	1 Available | 0 Unavailable
-   Available Models:
-   C:/llama-server/models/Qwen3.8-27B-Q4_K_M.gguf
-   Connection verified
-   OpenAI  Chat
-   ```
-
-   Click Close then `Next Step`.
-
-6. Configure the agent like this:
-
-    | Property | Value |
-    |-|-|
-    | Agent | Claude Code
-    | Profile Name | Qwen 3.8 27B
-    | Effect Scope | Only opened from CCR
-    | Entry Mode | CLI & App
-    | Default Model | Make sure to select the model from the dropdown
-    | Fable Model | Keep Claude Code default
-    | Opus Model | Keep Claude Code default
-    | Sonnet Model | Keep Claude Code default
-    | Haiku Model | Keep Claude Code default
-
-   Don't touch the `Advanced` settings.  Click `Next Step`.
-
-7. Write down the endpoint:
-
-   ```
-	 http://localhost:3456
-   ```
-
-   Click on `Let's Start`.
-
-## Create a custom Claude Code launcher script
-
-1. Open the folder where Claude Code is usually found:
-
-   ```
-   C:\Users\<user>\.local\bin
-   ```
-
-   If it is not found there, find out where it is by running:
-
-   ```
-   where claude.exe
-   ```
-
-2. In there, create a file named `claude-qwen.cmd` with the following contents:
-
-   **NOTE: Make sure to change <user> to the appropriate user value.  Also check that all of the files referenced in the script are in the appropriate folders or change the paths.**
-
-   ```
-   @echo off
-   setlocal
-
-   set "CCR_TOKEN_FILE=%APPDATA%\claude-code-router\bin\ccr-claude-code-wif-token-default-claude-code.txt"
-   set "CCR_MODEL=Llama CPP/C:/llama-server/models/Qwen3.8-27B-Q4_K_M.gguf"
-
-   if not exist "%CCR_TOKEN_FILE%" (
-       echo ERROR: CCR credential file was not found:
-       echo %CCR_TOKEN_FILE%
-       exit /b 1
-   )
-
-   set /p ANTHROPIC_API_KEY=<"%CCR_TOKEN_FILE%"
-
-   if not defined ANTHROPIC_API_KEY (
-       echo ERROR: CCR credential file is empty.
-       exit /b 1
-   )
-
-   rem Use CCR as the Anthropic-compatible gateway.
-   set "ANTHROPIC_BASE_URL=http://127.0.0.1:3456"
-
-   rem IMPORTANT: Do not allow the old AUTH_TOKEN path to override API_KEY.
-   set "ANTHROPIC_AUTH_TOKEN="
-
-   rem Use the actual CCR provider/model identifier.
-   set "ANTHROPIC_MODEL=%CCR_MODEL%"
-   set "ANTHROPIC_SMALL_FAST_MODEL=%CCR_MODEL%"
-
-   rem Allow CCR's model discovery support.
-   set "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1"
-
-   rem Enable Maximum Qwen 3.8 27B context
-   set "CLAUDE_CODE_MAX_CONTEXT_TOKENS=262144"
-
-   "C:\Users\<user>\.local\bin\claude.exe" %*
-
-   set "CLAUDE_EXIT_CODE=%ERRORLEVEL%"
-   endlocal & exit /b %CLAUDE_EXIT_CODE%
-   ```
-
 ## Create a custom Llama.cpp launcher script
 
 1. Navigate to the folder where you have Claude Code:
@@ -789,6 +608,195 @@ Run the installer and follow the instructions.
 
    As we can see, the `Content` field contains the thought process of the model and its reply.
 
+
+
+## Installing Claude Code
+
+1. Open a PowerShell window and run the following command to install Claude Code:
+
+   ```
+   irm https://claude.ai/install.ps1 | iex
+   ```
+
+   This will create the folder that we mentioned above for Claude Code.
+
+2. Create the settings.json file for Claude Code in the following folder:
+
+   ```
+   C:\Users\<user>\.claude
+   ```
+
+   Put the following contents:
+
+   ```
+   {
+     "env": {
+       "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+       "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
+       "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
+       "DISABLE_TELEMETRY": "1"
+     },
+     "autoUpdatesChannel": "latest",
+     "theme": "dark"
+   }
+   ```
+
+   NOTE: The file is minimal on purpose.  The configurations flow from Claude Code Router.
+
+## Installing the Claude Code Router
+
+Visit their official GitHub repository release files:
+
+```
+https://github.com/musistudio/claude-code-router/releases
+```
+
+Download the installer file:
+
+```
+https://github.com/musistudio/claude-code-router/releases/download/v3.0.22/Claude-Code-Router_3.0.22.exe
+```
+
+Run the installer and follow the instructions.
+
+## Configuring Claude Code Router
+
+1. Run the Router
+
+2. In the `Choose Provider` option:
+
+    | Property | Value |
+    |-|-|
+    | Preset | Custom API Provider |
+    | Name | Llama CPP |
+    | API Endpoint | http://localhost:11434/v1 |
+
+   Click on `Next Step`.
+
+3. In the `Choose API Key`:
+
+    | Property | Value |
+    |-|-|
+	  | API Key | local |
+
+   Click on `Next Step`.
+
+4. The existing model should have been recognized and added.  Configure as follows:
+
+    | Property | Value | Notes |
+    |-|-|-|
+    | Context Window | 262144	| Full context
+    | All Pricing Values | 0	| We don't care about pricing estimates
+    | Reasoning Level | High | If fails use Xtra High or Medium
+    | Fast Mode | Off	| Until we get everything working properly
+    | Web Search | Off	| We don't have a web search provider attached
+    | Image | On	| We are multimodal capable
+
+   Click on `Next Step`.
+
+5. Open the `Advanced` menu and change the following selections in Protocols Details:
+
+   * Check OpenAI Chat
+   * Uncheck everything else
+
+   Leave the other settings as they are.  Click the `Check Connection` button then `Start check`.
+
+   We should see the request coming to the terminal window of Llama-cpp.  Finally we should see a message like:
+
+   ```
+   Check results:	1 Available | 0 Unavailable
+   Available Models:
+   C:/llama-server/models/Qwen3.8-27B-Q4_K_M.gguf
+   Connection verified
+   OpenAI  Chat
+   ```
+
+   Click Close then `Next Step`.
+
+6. Configure the agent like this:
+
+    | Property | Value |
+    |-|-|
+    | Agent | Claude Code
+    | Profile Name | Qwen 3.8 27B
+    | Effect Scope | Only opened from CCR
+    | Entry Mode | CLI & App
+    | Default Model | Make sure to select the model from the dropdown
+    | Fable Model | Keep Claude Code default
+    | Opus Model | Keep Claude Code default
+    | Sonnet Model | Keep Claude Code default
+    | Haiku Model | Keep Claude Code default
+
+   Don't touch the `Advanced` settings.  Click `Next Step`.
+
+7. Write down the endpoint:
+
+   ```
+	 http://localhost:3456
+   ```
+
+   Click on `Let's Start`.
+
+## Create a custom Claude Code launcher script
+
+1. Open the folder where Claude Code is usually found:
+
+   ```
+   C:\Users\<user>\.local\bin
+   ```
+
+   If it is not found there, find out where it is by running:
+
+   ```
+   where.exe claude.exe
+   ```
+
+2. In there, create a file named `claude-qwen.cmd` with the following contents:
+
+   **NOTE: Make sure to change <user> to the appropriate user value.  Also check that all of the files referenced in the script are in the appropriate folders or change the paths.**
+
+   ```
+   @echo off
+   setlocal
+
+   set "CCR_TOKEN_FILE=%APPDATA%\claude-code-router\bin\ccr-claude-code-wif-token-default-claude-code.txt"
+   set "CCR_MODEL=Llama CPP/C:/llama-server/models/Qwen3.8-27B-Q4_K_M.gguf"
+
+   if not exist "%CCR_TOKEN_FILE%" (
+       echo ERROR: CCR credential file was not found:
+       echo %CCR_TOKEN_FILE%
+       exit /b 1
+   )
+
+   set /p ANTHROPIC_API_KEY=<"%CCR_TOKEN_FILE%"
+
+   if not defined ANTHROPIC_API_KEY (
+       echo ERROR: CCR credential file is empty.
+       exit /b 1
+   )
+
+   rem Use CCR as the Anthropic-compatible gateway.
+   set "ANTHROPIC_BASE_URL=http://127.0.0.1:3456"
+
+   rem IMPORTANT: Do not allow the old AUTH_TOKEN path to override API_KEY.
+   set "ANTHROPIC_AUTH_TOKEN="
+
+   rem Use the actual CCR provider/model identifier.
+   set "ANTHROPIC_MODEL=%CCR_MODEL%"
+   set "ANTHROPIC_SMALL_FAST_MODEL=%CCR_MODEL%"
+
+   rem Allow CCR's model discovery support.
+   set "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1"
+
+   rem Enable Maximum Qwen 3.8 27B context
+   set "CLAUDE_CODE_MAX_CONTEXT_TOKENS=262144"
+
+   "C:\Users\<user>\.local\bin\claude.exe" %*
+
+   set "CLAUDE_EXIT_CODE=%ERRORLEVEL%"
+   endlocal & exit /b %CLAUDE_EXIT_CODE%
+   ```
+
 ## Start Claude Code
 
 To start Claude Code, we use the launcher script that we created previously.
@@ -799,12 +807,65 @@ To start Claude Code, we use the launcher script that we created previously.
    claude-qwen
    ```
 
-## Start using your AI agent and enjoy!
-
-The first time that you interact with the model or any time that you interact after a while of no interaction, it will be a little slow because Llama.cpp will have to load the model again.  It offloads the model when not in use to not consume all your RAM if you don't need it.
+## Launching Llama.cpp silently
 
 If you want to run the Llama.cpp server without having a Window open start it like this:
 
 ```
 powershell -NoProfile -Command "Start-Process cmd.exe -ArgumentList '/c llama-qwen' -WindowStyle Hidden"
 ```
+
+## Launching Llama.cpp automatically when Windows boots
+
+You might benefit from having the Llama.cpp server automatically launch when you boot into Windows; especially if you use it a lot.  That way, you only have to launch Claude whenever you need it.
+
+To do that, follow these steps:
+
+1. Open the Task Scheduler in Windows
+2. On the right side, click on `Create Task` **(NOT Create Basic Task!)**
+3. On the `General` tab, configure it like this:
+   | Property | Value |
+   |-|-|
+   | Name | Llama.cpp Qwen Server |
+   | Security Options > Radio Buttons | ✅ Run only when user is logged on |
+   | Security Options > Checkbox | Run with highest privileges [Unchecked] |
+   | Configure for | Windows 10 / 11 |
+4. On the `Triggers` tab, click on the `New...` button and configure it like this:
+   | Property | Value |
+   |-|-|
+   | Begin the task | At log on |
+   | Specific user | Select your user |
+   | Delay task for | 30 seconds |
+   | Enabled | ✅ Checked |
+
+   Click the `OK` button.
+5. On the `Actions` tab, click on the `New...` button and configure it like this:
+   | Property | Value |
+   |-|-|
+   | Action | Start a program |
+   | Program/script | `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe` |
+   | Add Arguments | `-NoProfile -WindowStyle Hidden -Command "Start-Process cmd.exe -ArgumentList '/c ""C:\Users\<user>\.local\bin\llama-qwen.cmd""' -WindowStyle Hidden"` |
+   | Start in | `C:\Users\<user>\.local\bin` |
+   
+   Click the `OK` button.
+6. On the `Conditions` tab, configure it like this:
+   | Property | Value |
+   |-|-|
+   | Power | Start the task only if the computer is on AC Power - Uncheck it |
+7. On the `Settings` tab, configure it like this:
+   | Property | Value |
+   |-|-|
+   | Allow task to be run on demand | ✅ Checked |
+   | Run task as soon as possible after a scheduled start is missed | ✅ Checked |
+   | If the task is already running, then the following rule applies | Do not start a new instance |
+   | Stop the task if it runs longer than | Uncheck! |
+   
+   Click the `OK` button.
+
+   Windows will ask you for your password to save the task.  Enter it.
+
+The task should appear in the list of Active Tasks now.  Restart the computer to check that it automatically starts the llama.cpp server.  You can validate in the Task Manager > Processes.
+
+## Start using your AI agent and enjoy!
+
+The first time that you interact with the model or any time that you interact after a while of no interaction, it will be a little slow because Llama.cpp will have to load the model again.  It offloads the model when not in use to not consume all your RAM if you don't need it.
