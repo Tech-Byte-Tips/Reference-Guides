@@ -47,22 +47,118 @@ Drawbacks:
 - Performance can vary.
   - Speeds depend heavily on the health of the network and the number of participating peers.
 
+# The Connection Process
+
+Most modern BitTorrent networks (including I2P) use three methods of sharing information about the network and its peers.
+
+```
+           Tracker
+             │
+             ▼
+            You
+           /   \
+          ▼     ▼
+        DHT    PeX
+```
+
+As a client, you could find peers in these ways:
+
+  1. Primary - Ask a tracker for peers.
+  2. Primary & Secondary - Ask DHT for more peers.
+  3. Secondary - Learn of more peers from existing peers.
+
+Using these 3 methods, you can guarantee a larger and healthier swarm of peers.
+
+Depending on the torrent client, you might be limited as to which of these you can use.
+
+For example, qBittorrent can only find peers through a tracker in I2P.  BiglyBT and I2PSnark can find them using all ways.
+
+Let's talk about the three in more detail.
+
+## HTTP Tracker
+
+A tracker is a server that keeps track of which peers are participating in a torrent.
+
+When you open a torrent, your client does the following:
+
+  1. Contact the tracker.
+  2. The tracker returns a list of peers.
+  3. Connects to those peers.
+
+Bootstrapping looks like this:
+
+```
+You ──► Tracker
+You ◄── List of peers
+
+You ◄────► Peer A
+You ◄────► Peer B
+You ◄────► Peer C
+```
+
+## DHT
+
+DHT (Distributed Hash Table) is a decentralized tracker replacement.
+
+Instead of asking a central tracker, clients maintain a distributed database among themselves.
+
+When you want peers for a torrent, your client does the following:
+
+  1. Compute the torrent's infohash.
+  2. Query the DHT network.
+  3. Other nodes return peers associated with that infohash.
+
+Bootstrapping looks like this:
+
+```
+       Node A
+      /      \
+You ── Node B ── Node C
+      \      /
+       Node D
+```
+
+I2P DHT differs from the normal BitTorrent DHT because:
+
+  1. BitTorrent's DHT is built on public IP addresses on UDP.
+  2. I2P uses destination keys and tunnels instead.
+
+## PeX (Peer Exchange)
+
+Once you are connected to at least one peer, peers can tell each other about additional peers.
+
+It looks like this:
+
+```
+You ──► Peer A
+
+Peer A says:
+"I know Peer B and Peer C."
+
+You connect to:
+Peer B
+Peer C
+```
+
 # Available Torrent Clients
 
 We will be covering how to use different torrent clients.  Instructions for the setup for each client will be in their own folder.
 
+## Table of useful torrent clients as of 2026.
+
 | Client | I2P Protocol | I2P DHT Support | I2P PeX Support | I2P HTTP Trackers Support | Notes |
 | - | - | - | - | - | - |
-| LibTorrent | - | No | No | Yes | - |
-| qBittorrent | SAM | No | No | Yes | - |
-| Vuze | I2CP | Yes | Yes | Yes | - |
-| BiglyBT | I2CP | Yes | Yes | Yes | - |
-| XD | SAM | - | - | - | - |
-| I2PSnark | I2CP | Yes | Yes | Yes | - |
-| I2PSnark Standalone | I2CP | Yes | Yes | Yes | - |
-| Robert | BOB | - | - | - | - |
+| LibTorrent | SAM | No | No (not released) | Yes | Current I2P support is tracker + peer connectivity via SAM; No I2P DHT because SAM v3.3 support is missing |
+| qBittorrent | SAM | No | No | Yes | Uses LibTorrent's I2P support and inherits its limitations. |
+| Vuze | I2CP (via plugin) | Yes | Yes | Yes | Historically through the I2P Helper plugin; functionality similar to BiglyBT |
+| BiglyBT | I2CP | Yes | Yes | Yes | One of the most complete I2P implementations. |
+| XD | SAM | No | Unclear/Limited | Yes | Supports I2P transport, but not known for implementing I2P DHT. |
+| I2PSnark | I2CP | Yes | Yes | Yes | Reference implementation for I2P BitTorrent extensions. DHT support exists since v0.9.2. |
+| I2PSnark Standalone | I2CP | Yes | Yes | Yes | Same protocol capabilities as embedded I2PSnark. |
+| Tixati | I2CP | Yes | Yes | Yes | Connects directly to an external I2P router via I2CP.  Implements its own I2P DHT support and supports the i2p_pex extension.  Trackers are optional but supported.
+| Robert | BOB | No | No | Yes | Experimental/obsolete; not commonly used today. |
 
-# List of Torrent Trackers
+# I2P Torrent Trackers
 
 You can add additional torrent trackers to your torrents to enhance the finding of peers.
 
