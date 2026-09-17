@@ -466,6 +466,7 @@ Newer versions may also work, but command-line options or application behavior c
 
    "%LLAMA_DIR%\llama-server.exe" ^
      --model "%MODEL_DIR%\Qwen3.8-27B-Q4_K_M.gguf" ^
+     --alias "Qwen3.8-27B-Q4_K_M" ^
      --mmproj "%MODEL_DIR%\mmproj-BF16.gguf" ^
      --n-gpu-layers 999 ^
      --ctx-size 262144 ^
@@ -550,7 +551,7 @@ Newer versions may also work, but command-line options or application behavior c
                  {
                      "id":  "C:\\llama-server\\models\\Qwen3.8-27B-Q4_K_M.gguf",
                      "aliases":  [
-                                     "C:\\llama-server\\models\\Qwen3.8-27B-Q4_K_M.gguf"
+                                     "Qwen3.8-27B-Q4_K_M"
                                  ],
                      "tags":  [
 
@@ -760,7 +761,7 @@ Run the installer and follow the instructions.
    setlocal
 
    set "CCR_TOKEN_FILE=%APPDATA%\claude-code-router\bin\ccr-claude-code-wif-token-default-claude-code.txt"
-   set "CCR_MODEL=Llama CPP/C:/llama-server/models/Qwen3.8-27B-Q4_K_M.gguf"
+   set "CCR_MODEL=Llama CPP/Qwen3.8-27B-Q4_K_M"
 
    if not exist "%CCR_TOKEN_FILE%" (
        echo ERROR: CCR credential file was not found:
