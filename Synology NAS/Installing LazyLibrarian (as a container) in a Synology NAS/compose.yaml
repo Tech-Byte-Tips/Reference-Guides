@@ -1,0 +1,24 @@
+services:
+  
+  # Container - Lazylibrarian
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: LazyLibrarian
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+      # Optional
+      # Universal Calibre - Used for CalibreDB and Ebook Conversion
+      # To use, go to Settings -> Processing -> External Programs settings and add this as the Calibre import program: /usr/bin/calibredb
+      # LazyLibrarian FFMPEG - Used to process audiobooks
+      # To use, go to Settings -> Processing -> External Programs and set FFMPEG to: ffmpeg
+      - DOCKER_MODS=linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg
+    volumes:
+      # NAS | Container
+      - /volume1/docker/Containers/LazyLibrarian:/config
+      - /volume1/HTPC:/HTPC
+    ports:
+      # NAS | Container
+      - 5299:5299
+    restart: unless-stopped

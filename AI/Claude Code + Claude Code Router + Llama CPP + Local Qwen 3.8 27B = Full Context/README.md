@@ -798,6 +798,14 @@ Run the installer and follow the instructions.
    endlocal & exit /b %CLAUDE_EXIT_CODE%
    ```
 
+   *NOTE: If Claude Code Router didn't create a .txt file like this one:*
+
+   ```
+   C:\Users\\<user\>\AppData\Roaming\claude-code-router\bin\ccr-claude-code-wif-token-default-claude-code.txt
+   ```
+
+   Create the .txt file and add the API Key from API KEYS in the Claude Code Router interface. You can create a new key for it.
+
 ## Start Claude Code
 
 To start Claude Code, we use the launcher script that we created previously.
