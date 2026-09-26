@@ -1,0 +1,75 @@
+services:
+  # Container #1: QBit Manage - This container is the QBitTorrent management tool
+  # ---------------------
+  qbit_manage:
+    container_name: QBit-Manage
+    image: ghcr.io/stuffanthings/qbit_manage:latest
+    volumes:
+      - /volume1/docker/Containers/Qbit-Manage:/config
+      - /volume1/HTPC/Downloads:/downloads
+      - /volume1/docker/Containers/QBitTorrent/qBittorrent/BT_backup:/qbt/BT_backup
+    ports:
+      # Web API / Web UI port
+      - "8181:8181"
+    environment:
+      # Identity — match the UID/GID that owns your /mnt/data/torrents files
+      - PUID=1026
+      - PGID=100
+      - TZ=America/New_York
+
+      # Enable the built-in web server (disabled by default in Docker)
+      - QBT_WEB_SERVER=true
+      - QBT_PORT=8181
+
+      # Run on a schedule (every 1440 minutes = daily); set QBT_RUN=true for one-shot
+      - QBT_RUN=false
+      - QBT_SCHEDULE=1440
+      - QBT_CONFIG_DIR=/config
+      - QBT_LOGFILE=qbit_manage.log
+
+      # Commands to run each cycle (all false = web-API-only mode)
+      - QBT_RECHECK=false
+      - QBT_CAT_UPDATE=false
+      - QBT_TAG_UPDATE=false
+      - QBT_REM_UNREGISTERED=false
+      - QBT_REM_ORPHANED=false
+      - QBT_TAG_TRACKER_ERROR=false
+      - QBT_TAG_NOHARDLINKS=false
+      - QBT_SHARE_LIMITS=false
+      - QBT_SKIP_CLEANUP=false
+      - QBT_DRY_RUN=false
+      - QBT_STARTUP_DELAY=0
+      - QBT_SKIP_QB_VERSION_CHECK=false
+      - QBT_DEBUG=false
+      - QBT_TRACE=false
+
+      # Logging
+      - QBT_LOG_LEVEL=INFO
+      - QBT_LOG_SIZE=10
+      - QBT_LOG_COUNT=5
+    depends_on:
+      - qbittorrent
+    restart: on-failure:2
+
+  # Container #2: QBitTorrent - This container is the Torrent downloader
+  # ---------------------
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: QBitTorrent
+    environment:
+      - TZ=America/New_York # Time Zone
+      - WEBUI_PORT=8080
+      - PUID=1026           # User ID
+      - PGID=100            # Group ID
+    ports:
+      # Web UI port
+      - "8080:8080"
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/QBitTorrent:/config
+      - /volume1/HTPC:/HTPC
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: unless-stopped
