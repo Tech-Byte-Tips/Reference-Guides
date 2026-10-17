@@ -1,0 +1,16 @@
+services:
+
+  # Container - QBitrr
+  qbitrr:
+    image: feramance/qbitrr:latest
+    container_name: QBitrr
+    environment:
+      TZ: America/New_York
+      PUID: 1026
+      PGID: 100
+    ports:
+      - "6969:6969"
+    volumes:
+      - /volume1/docker/Containers/QBitrr:/config
+      - /volume1/HTPC:/HTPC
+    restart: unless-stopped
