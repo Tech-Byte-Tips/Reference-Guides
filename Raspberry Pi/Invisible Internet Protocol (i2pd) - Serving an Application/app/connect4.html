@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect 4</title>
+  <style>
+    :root {
+      --bg: #101828;
+      --panel: #1b2740;
+      --board: #1d4ed8;
+      --hole: #0f172a;
+      --red: #ef4444;
+      --yellow: #facc15;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --cell: clamp(34px, 11vw, 64px);
+      --gap: clamp(4px, 1.2vw, 8px);
+      --radius: calc(var(--cell) / 2);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(1200px 700px at 50% -10%, #1e293b, var(--bg));
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      padding: 16px;
+    }
+
+    .game {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      letter-spacing: 0.06em;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .status {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      min-height: 1.5em;
+      text-align: center;
+      flex: 1;
+    }
+
+    .score {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-width: 84px;
+    }
+
+    .score.active {
+      outline: 2px solid var(--text);
+      outline-offset: 2px;
+    }
+
+    .score-disc {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+    }
+    .score-red .score-disc { background: var(--red); }
+    .score-yellow .score-disc { background: var(--yellow); }
+
+    .score-name { font-size: 0.75rem; color: var(--muted); }
+    .score-count { font-size: 1.2rem; font-weight: 700; }
+
+    .board-wrap { padding-top: calc(var(--cell) / 2 + 4px); }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(7, var(--cell));
+      grid-template-rows: repeat(6, var(--cell));
+      gap: var(--gap);
+      background: var(--board);
+      padding: calc(var(--gap) + 6px);
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), inset 0 -6px 12px rgba(0,0,0,0.3);
+    }
+
+    .cell {
+      position: relative;
+      width: var(--cell);
+      height: var(--cell);
+      padding: 0;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--hole);
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cell:hover:not(:disabled) .disc::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .cell:disabled { cursor: default; }
+
+    .disc {
+      position: relative;
+      width: calc(100% - 4px);
+      height: calc(100% - 4px);
+      border-radius: var(--radius);
+      box-shadow: inset 0 -5px 8px rgba(0,0,0,0.35), inset 0 4px 6px rgba(255,255,255,0.25);
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--cell) * 6));
+    }
+
+    .disc.red { background: radial-gradient(circle at 35% 30%, #f87171, var(--red)); }
+    .disc.yellow { background: radial-gradient(circle at 35% 30%, #fde047, var(--yellow)); }
+
+    .disc.drop {
+      animation: drop 0.35s cubic-bezier(0.5, 0, 0.6, 1) forwards;
+    }
+
+    @keyframes drop {
+      0%   { opacity: 0; transform: translateY(calc(-1 * var(--cell) * 6)); }
+      70%  { opacity: 1; transform: translateY(calc(var(--cell) * 0.12)); }
+      85%  { transform: translateY(calc(var(--cell) * -0.04)); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .cell.won .disc {
+      animation: win-pulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes win-pulse {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.5); }
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--board);
+      color: var(--text);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .btn:hover { background: #2563eb; }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      background: var(--panel);
+    }
+    .btn-secondary:hover { background: #263552; }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>Connect 4</h1>
+
+    <div class="status-bar">
+      <div class="score score-red" id="scorebox-red">
+        <span class="score-disc"></span>
+        <span class="score-name">Player 1</span>
+        <span class="score-count" id="score-red">0</span>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Player 1's turn</p>
+      <div class="score score-yellow" id="scorebox-yellow">
+        <span class="score-disc"></span>
+        <span class="score-name">Player 2</span>
+        <span class="score-count" id="score-yellow">0</span>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <div id="board" class="board" aria-label="Connect 4 board"></div>
+    </div>
+
+    <div class="controls">
+      <button id="new-game" class="btn" type="button">New game</button>
+      <button id="reset-scores" class="btn btn-secondary" type="button">Reset scores</button>
+    </div>
+  </main>
+
+  <script>
+    "use strict";
+
+    const ROWS = 6;
+    const COLS = 7;
+    const WIN_IN_A_ROW = 4;
+
+    const HUMAN = 1; // red
+    const AI = 2;    // yellow
+
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const scoreRedEl = document.getElementById("score-red");
+    const scoreYellowEl = document.getElementById("score-yellow");
+    const scoreBoxRed = document.getElementById("scorebox-red");
+    const scoreBoxYellow = document.getElementById("scorebox-yellow");
+    const newGameBtn = document.getElementById("new-game");
+    const resetScoresBtn = document.getElementById("reset-scores");
+
+    let grid = [];          // grid[row][col] = 0 empty, 1 red, 2 yellow
+    let current = HUMAN;
+    let gameOver = false;
+    let aiThinking = false;
+    let aiToken = 0; // invalidates any pending AI move when a new game starts
+    let scores = { [HUMAN]: 0, [AI]: 0 };
+    let cells = [];         // DOM cells, same layout as grid
+
+    const COLORS = { [HUMAN]: "red", [AI]: "yellow" };
+    const NAMES = { [HUMAN]: "Player 1", [AI]: "Player 2" };
+
+    function createBoard() {
+      grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+      cells = [];
+      boardEl.innerHTML = "";
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const btn = document.createElement("button");
+          btn.className = "cell";
+          btn.type = "button";
+          btn.setAttribute("aria-label", `Drop in column ${c + 1}`);
+          btn.addEventListener("click", () => onColumnClick(c));
+          boardEl.appendChild(btn);
+          cells.push(btn);
+        }
+      }
+    }
+
+    function cellAt(r, c) {
+      return cells[r * COLS + c];
+    }
+
+    function columnFull(c) {
+      return grid[0][c] !== 0;
+    }
+
+    function dropRow(c) {
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][c] === 0) return r;
+      }
+      return -1;
+    }
+
+    function placeDisc(r, c, player) {
+      grid[r][c] = player;
+      const disc = document.createElement("span");
+      disc.className = `disc ${COLORS[player]}`;
+      // small delay so the drop animation plays
+      requestAnimationFrame(() => requestAnimationFrame(() => disc.classList.add("drop")));
+      cellAt(r, c).appendChild(disc);
+    }
+
+    const DIRECTIONS = [
+      [0, 1],   // horizontal
+      [1, 0],   // vertical
+      [1, 1],   // diagonal down-right
+      [1, -1],  // diagonal down-left
+    ];
+
+    function checkWin(r, c, player) {
+      for (const [dr, dc] of DIRECTIONS) {
+        const line = [[r, c]];
+        // walk forward
+        for (let i = 1; i < WIN_IN_A_ROW; i++) {
+          const nr = r + dr * i, nc = c + dc * i;
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || grid[nr][nc] !== player) break;
+          line.push([nr, nc]);
+        }
+        // walk backward
+        for (let i = 1; i < WIN_IN_A_ROW; i++) {
+          const nr = r - dr * i, nc = c - dc * i;
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || grid[nr][nc] !== player) break;
+          line.push([nr, nc]);
+        }
+        if (line.length >= WIN_IN_A_ROW) return line;
+      }
+      return null;
+    }
+
+    function isDraw() {
+      return grid[0].every((v) => v !== 0);
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function highlightWin(line) {
+      for (const [r, c] of line) cellAt(r, c).classList.add("won");
+    }
+
+    function endTurn(player, line) {
+      if (line) {
+        gameOver = true;
+        scores[player]++;
+        scoreRedEl.textContent = scores[HUMAN];
+        scoreYellowEl.textContent = scores[AI];
+        highlightWin(line);
+        setStatus(`${NAMES[player]} wins!`);
+      } else if (isDraw()) {
+        gameOver = true;
+        setStatus("It's a draw!");
+      } else {
+        current = current === HUMAN ? AI : HUMAN;
+        setStatus(`${NAMES[current]}'s turn`);
+        if (current === AI) aiMove();
+      }
+      refreshBoardState();
+    }
+
+    function onColumnClick(c) {
+      if (gameOver || aiThinking || current !== HUMAN || columnFull(c)) return;
+      const r = dropRow(c);
+      placeDisc(r, c, HUMAN);
+      const line = checkWin(r, c, HUMAN);
+      endTurn(HUMAN, line);
+    }
+
+    function refreshBoardState() {
+      for (let c = 0; c < COLS; c++) {
+        cellAt(0, c).disabled = gameOver || aiThinking || current !== HUMAN || columnFull(c);
+      }
+      scoreBoxRed.classList.toggle("active", !gameOver && current === HUMAN);
+      scoreBoxYellow.classList.toggle("active", !gameOver && current === AI);
+    }
+
+    /* ------------------- AI (minimax with alpha-beta pruning) ------------------- */
+
+    function evaluate(grid) {
+      // Score the board from the AI's perspective by sliding a 4-window across it.
+      const CENTER = 3;
+      let score = 0;
+      const windows = [];
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          for (const [dr, dc] of DIRECTIONS) {
+            const er = r + dr * 3, ec = c + dc * 3;
+            if (er < 0 || er >= ROWS || ec < 0 || ec >= COLS) continue;
+            windows.push([
+              [r, c],
+              [r + dr, c + dc],
+              [r + dr * 2, c + dc * 2],
+              [er, ec],
+            ]);
+          }
+        }
+      }
+      for (const win of windows) {
+        const vals = win.map(([r, c]) => grid[r][c]);
+        const aiCount = vals.filter((v) => v === AI).length;
+        const huCount = vals.filter((v) => v === HUMAN).length;
+        const emptyCount = vals.filter((v) => v === 0).length;
+        if (aiCount === 4) score += 100000;
+        else if (huCount === 4) score -= 100000;
+        else if (aiCount === 3 && emptyCount === 1) score += 100;
+        else if (huCount === 3 && emptyCount === 1) score -= 100;
+        else if (aiCount === 2 && emptyCount === 2) score += 10;
+        else if (huCount === 2 && emptyCount === 2) score -= 10;
+        // slight bias toward the center column
+        for (const [r, c] of win) {
+          if (grid[r][c] === AI && c === CENTER) score += 6;
+          if (grid[r][c] === HUMAN && c === CENTER) score -= 6;
+        }
+      }
+      return score;
+    }
+
+    function validMoves(grid) {
+      const moves = [];
+      for (let c = 0; c < COLS; c++) {
+        if (grid[0][c] === 0) moves.push(c);
+      }
+      return moves;
+    }
+
+    function simulate(grid, c, player) {
+      for (let r = ROWS - 1; r >= 0; r--) {
+        if (grid[r][c] === 0) {
+          grid[r][c] = player;
+          return r;
+        }
+      }
+      return -1;
+    }
+
+    function minimax(grid, depth, alpha, beta, maximizing) {
+      const score = evaluate(grid);
+      if (score >= 100000 || score <= -100000) return score;
+      if (depth === 0) return score;
+
+      const moves = validMoves(grid);
+      if (moves.length === 0) return 0;
+
+      // play center-ish moves first for better pruning
+      const ordered = moves.slice().sort((a, b) => Math.abs(a - 3) - Math.abs(b - 3));
+
+      if (maximizing) {
+        let best = -Infinity;
+        for (const c of ordered) {
+          const r = simulate(grid, c, AI);
+          const value = minimax(grid, depth - 1, alpha, beta, false);
+          grid[r][c] = 0;
+          best = Math.max(best, value);
+          alpha = Math.max(alpha, value);
+          if (alpha >= beta) break;
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (const c of ordered) {
+          const r = simulate(grid, c, HUMAN);
+          const value = minimax(grid, depth - 1, alpha, beta, true);
+          grid[r][c] = 0;
+          best = Math.min(best, value);
+          beta = Math.min(beta, value);
+          if (alpha >= beta) break;
+        }
+        return best;
+      }
+    }
+
+    // Win check against an arbitrary grid (used on the AI's working copy).
+    function checkWinOn(g, r, c, player) {
+      for (const [dr, dc] of DIRECTIONS) {
+        let count = 1;
+        for (const sign of [1, -1]) {
+          for (let i = 1; i < WIN_IN_A_ROW; i++) {
+            const nr = r + dr * i * sign, nc = c + dc * i * sign;
+            if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || g[nr][nc] !== player) break;
+            count++;
+          }
+        }
+        if (count >= WIN_IN_A_ROW) return true;
+      }
+      return false;
+    }
+
+    function bestMove(grid) {
+      const moves = validMoves(grid);
+      if (moves.length === 0) return -1;
+      if (moves.length === COLS) return 3; // first move: just take the center
+
+      // Immediate win?
+      for (const c of moves) {
+        const r = simulate(grid, c, AI);
+        if (r >= 0 && checkWinOn(grid, r, c, AI)) {
+          grid[r][c] = 0;
+          return c;
+        }
+        grid[r][c] = 0;
+      }
+      // Block an immediate loss?
+      for (const c of moves) {
+        const r = simulate(grid, c, HUMAN);
+        if (r >= 0 && checkWinOn(grid, r, c, HUMAN)) {
+          grid[r][c] = 0;
+          return c;
+        }
+        grid[r][c] = 0;
+      }
+
+      let best = -Infinity;
+      let choice = moves[0];
+      const ordered = moves.slice().sort((a, b) => Math.abs(a - 3) - Math.abs(b - 3));
+      for (const c of ordered) {
+        const r = simulate(grid, c, AI);
+        const value = minimax(grid, 5, -Infinity, Infinity, false);
+        grid[r][c] = 0;
+        if (value > best) {
+          best = value;
+          choice = c;
+        }
+      }
+      return choice;
+    }
+
+    function aiMove() {
+      aiThinking = true;
+      const token = ++aiToken;
+      refreshBoardState();
+      // Defer so the human's disc animation can start first.
+      setTimeout(() => {
+        if (token !== aiToken) return; // a new game started meanwhile
+        const c = bestMove(grid);
+        if (c < 0) {
+          aiThinking = false;
+          return;
+        }
+        const r = dropRow(c);
+        placeDisc(r, c, AI);
+        aiThinking = false;
+        const line = checkWin(r, c, AI);
+        endTurn(AI, line);
+      }, 350);
+    }
+
+    function newGame() {
+      gameOver = false;
+      aiThinking = false;
+      aiToken++; // cancel any pending AI move
+      current = Math.random() < 0.5 ? HUMAN : AI;
+      createBoard();
+      setStatus(`${NAMES[current]}'s turn`);
+      refreshBoardState();
+      if (current === AI) aiMove();
+    }
+
+    newGameBtn.addEventListener("click", newGame);
+    resetScoresBtn.addEventListener("click", () => {
+      scores = { [HUMAN]: 0, [AI]: 0 };
+      scoreRedEl.textContent = "0";
+      scoreYellowEl.textContent = "0";
+    });
+
+    createBoard();
+    setStatus("Click a column to drop a disc. Player 1 (red) goes first.");
+    refreshBoardState();
+  </script>
+</body>
+</html>
