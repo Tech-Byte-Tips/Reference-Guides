@@ -1,0 +1,111 @@
+services:
+
+  ####################################################################
+  # Container #1 - TDARR SERVER - Central Server that manages the 
+  #                Library, Jobs, and Nodes.
+  ####################################################################
+  tdarr-server:
+    container_name: Tdarr-server
+    image: haveagitgat/tdarr:latest
+    ports:
+      # NAS | Container
+      - "8265:8265"
+      - "8266:8266"
+    environment:
+      # Timezone
+      - TZ=America/New_York
+      # User and Group IDs for file permissions
+      - PUID=1026
+      - PGID=100
+      # Bind to all interfaces
+      - serverIP=0.0.0.0
+      # Define the ports to use for the server and web UI
+      - serverPort=8266
+      - webUIPort=8265
+      # Disable the built-in node because we are using a separate
+      # node container.
+      - internalNode=false
+      # Tell Tdarr that the server is running in a container
+      - inContainer=true
+      # Define the ffmpeg version to use
+      - ffmpegVersion=7
+      # Maximum log size in MB
+      - maxLogSizeMB=10
+      # Authorization is disabled
+      - auth=false
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/Tdarr/config:/app/configs
+      - /volume1/docker/Containers/Tdarr/server:/app/server
+      - /volume1/docker/Containers/Tdarr/logs:/app/logs
+      - /volume1/docker/Containers/Tdarr/cache:/temp
+      - /volume1/HTPC:/HTPC
+    restart: unless-stopped
+    # Remove if not using Docker network
+    networks:
+      - tdarr-network
+
+  ####################################################################
+  # Container #2 - TDARR EXTERNAL NODE - For video transcoding.
+  ####################################################################
+  tdarr-node:
+    container_name: Tdarr-node
+    image: haveagitgat/tdarr_node:latest
+    environment:
+      # Timezone
+      - TZ=America/New_York
+      # User and Group IDs for file permissions
+      - PUID=1026
+      - PGID=100
+      # Enable all NVIDIA GPU capabilities
+      #- NVIDIA_DRIVER_CAPABILITIES=all
+      # Make all NVIDIA GPUs visible
+      #- NVIDIA_VISIBLE_DEVICES=all
+      # Connect to Tdarr Server using Docker DNS (Replace with IP if not using Docker DNS)
+      - serverIP=tdarr-server
+      # Must match the server port defined in the Tdarr Server container
+      - serverPort=8266
+      # Node name (can be anything, but must be unique) (e.g. External Transcoding Node - 01)
+      - nodeName=ETN-01
+      # Standard node sharing the same filesystem as the server
+      - nodeType=mapped
+      # Tell Tdarr that the node is running in a container
+      - inContainer=true
+      # Define the ffmpeg version to use
+      - ffmpegVersion=7
+      # Assign a priority to the node (0 is highest, 10 is lowest)
+      - priority=0
+      # Define the polling interval in milliseconds (default is 2000)
+      - pollInterval=2000
+      # Start the node paused (true or false) - if true, the node will not start processing jobs until manually started in the Tdarr Web UI
+      - startPaused=false
+      # Number of GPU workers to use for transcoding (default is 1, set to 0 to disable GPU transcoding)
+      - transcodegpuWorkers=0
+      # Number of CPU workers to use for transcoding (default is 1, set to 0 to disable CPU transcoding)
+      - transcodecpuWorkers=1
+      # Number of GPU workers to use for health checks (default is 0, set to 0 to disable GPU health checks)
+      - healthcheckgpuWorkers=0
+      # Number of CPU workers to use for health checks (default is 1, set to 0 to disable CPU health checks)
+      - healthcheckcpuWorkers=1
+      # Maximum log size in MB
+      - maxLogSizeMB=10
+    volumes:
+      - /volume1/docker/Containers/Tdarr/node-configs/etn-01:/app/configs
+      - /volume1/docker/Containers/Tdarr/node-logs/etn-01:/app/logs
+      # Same media path as server
+      - /volume1/HTPC:/HTPC
+      # Same cache path as server
+      - /volume1/docker/Containers/Tdarr/cache:/temp
+    restart: unless-stopped
+    depends_on:
+      - tdarr-server
+    # Remove if not using Docker network
+    networks:
+      - tdarr-network
+
+####################################################################
+# DOCKER NETWORK - Remove if not using Docker network
+####################################################################
+networks:
+  tdarr-network:
+    driver: bridge

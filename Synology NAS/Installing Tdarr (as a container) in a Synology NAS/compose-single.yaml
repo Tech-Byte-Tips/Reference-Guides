@@ -1,0 +1,37 @@
+
+services:
+
+  ####################################################################
+  # Container #1: Tdarr - This container transcodes videos to x265.
+  # --------------------- It is a very resource-intensive application.
+  ####################################################################
+  tdarr:
+    image: haveagitgat/tdarr:latest
+    container_name: Tdarr
+    environment:
+      - PUID=1026                       # User ID
+      - PGID=100                        # Group ID
+      - TZ=America/New_York             # Time Zone
+      - NVIDIA_DRIVER_CAPABILITIES=all  # Enable all NVIDIA GPU capabilities
+      - NVIDIA_VISIBLE_DEVICES=all      # Make all NVIDIA GPUs visible
+      - WEB_UI_PORT=8265                # The Web UI port
+      - SERVER_PORT=8266                # The Server port
+      - NODE_PORT=8267                  # The Node port
+      - inContainer=true                # Tell Tdarr that it is running in a container
+      - internalNode=true               # Enable Internal Node
+      - nodeID=InternalNode             # Internal Node name
+    volumes:
+      # NAS folder | Container folder
+      - /volume1/docker/Containers/Tdarr/configs:/app/configs
+      - /volume1/docker/Containers/Tdarr/server:/app/server
+      - /volume1/HTPC:/HTPC
+    ports:
+      # NAS | Container
+      - 8265:8265/tcp
+      - 8266:8266/tcp
+      - 8267:8267/tcp
+    deploy:
+      resources:
+        limits:
+          memory: 2G                    # Limit memory usage to 2GB
+    restart: unless-stopped

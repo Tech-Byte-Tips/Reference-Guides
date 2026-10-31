@@ -1,0 +1,72 @@
+services:
+
+  # Container #1 - Application
+  tubearchivist:
+    container_name: TubeArchivist
+    image: bbilly1/tubearchivist:latest
+    ports:
+      - 8001:8000
+    environment:
+      # Elastic Search URL
+      - ES_URL=http://archivist-es:9200
+      # Redis URL
+      - REDIS_CON=redis://archivist-redis:6379
+      - HOST_UID=1026
+      - HOST_GID=100
+      # The URL for the application
+      - TA_HOST=http://10.0.0.73:8001
+      # Initial username
+      - TA_USERNAME=tubearchivist
+      # Initial password
+      - TA_PASSWORD=verysecret
+      # ElasticSearch password
+      - ELASTIC_PASSWORD=verysecret
+      # TimeZone
+      - TZ=America/New_York
+    volumes:
+      - /volume1/docker/Containers/TubeArchivist/media:/youtube
+      - /volume1/docker/Containers/TubeArchivist/cache:/cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://10.0.0.73:8001/api/health/"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - archivist-es
+      - archivist-redis
+    restart: unless-stopped
+
+  # Container #2 - Cache
+  archivist-redis:
+    container_name: TubeArchivist-Redis
+    image: redis:latest
+    volumes:
+      - /volume1/docker/Containers/TubeArchivist/redis:/data
+    #expose:
+    #  - "6379"
+    depends_on:
+      - archivist-es
+    restart: unless-stopped
+
+  # Container #3 - Elastic Search
+  archivist-es:
+    container_name: TubeArchivist-ES
+    # only for amd64, or use official es 8.19.0
+    image: bbilly1/tubearchivist-es:latest
+    environment:
+      # Elasticsearch password
+      - "ELASTIC_PASSWORD=verysecret"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "xpack.security.enabled=true"
+      - "discovery.type=single-node"
+      - "path.repo=/usr/share/elasticsearch/data/snapshot"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /volume1/docker/Containers/TubeArchivist/elasticsearch:/usr/share/elasticsearch/data
+    restart: unless-stopped
+    #expose:
+    #  - "9200"
