@@ -612,6 +612,7 @@ We have validate that everything works.  Now we need to make it so that the mach
       -tb 6 \
       --ctx-size 49152 \
       --parallel 1 \
+      --sleep-idle-seconds 300 \
       --host 0.0.0.0 \
       --port 8003
     ```
